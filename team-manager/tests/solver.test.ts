@@ -7,7 +7,7 @@
  * Player names and record IDs are anonymised — do not add real names here.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { execSync } from 'child_process';
 import path from 'path';
 

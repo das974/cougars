@@ -275,6 +275,21 @@ export default function Home() {
 
   return (
     <>
+      {/* Background image and vignette — outside opacity wrapper so they are truly viewport-fixed */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'url(/cougars_background.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.22,
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{ background: 'radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.65) 100%)' }}
+      />
+
       {!splashGone && <SplashLoader isExiting={splashExiting} />}
       {splashGone && !isAuthenticated && (
         <AppLogin onAuth={(adminMode) => {
@@ -283,7 +298,7 @@ export default function Home() {
           if (adminMode) { setIsAdmin(true); setCookie('admin_auth', '1'); }
         }} />
       )}
-      <div className={`min-h-screen bg-base transition-opacity duration-500 ${splashExiting && isAuthenticated ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`min-h-screen bg-base/0 transition-opacity duration-500 ${splashExiting && isAuthenticated ? 'opacity-100' : 'opacity-0'}`}>
       {/* Generating overlay */}
       {generating && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm pointer-events-none">
@@ -294,24 +309,9 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* Background image — more visible on dark */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'url(/cougars_background.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.22,
-        }}
-      />
-      {/* Vignette — darkens edges for depth */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: 'radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.65) 100%)' }}
-      />
 
-      {/* Page header — full-bleed sticky bar */}
-      <header className="sticky top-0 z-30 border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
+      {/* Page header — full-bleed fixed bar */}
+      <header className="fixed top-0 inset-x-0 z-30 border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
         <div className="mx-auto max-w-5xl px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src="/cougars.avif" alt="Cougars" width={56} height={56} className="flex-shrink-0" />
@@ -368,8 +368,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="mx-auto max-w-5xl px-8 py-8 relative z-10">
+      {/* Main content — padded to clear fixed header (py-5 × 2 + 56px image = 96px) */}
+      <main className="mx-auto max-w-5xl px-8 pt-32 pb-8 relative z-10">
 
         {/* Player groups */}
         {attendingPlayers.length === 0 ? (
@@ -466,7 +466,25 @@ export default function Home() {
 
         <div ref={teamsRef}>
           {(teams ?? airtableTeams)
-            ? <TeamsView key={solveKey} teams={(teams ?? airtableTeams)!} isAdmin={isAdmin} />
+            ? <TeamsView
+                key={solveKey}
+                teams={(teams ?? airtableTeams)!}
+                isAdmin={isAdmin}
+                onTeamsChange={(updated) => {
+                  if (!session) return;
+                  fetch('/api/teams', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      sessionId: session.id,
+                      teams: updated.map((t) => ({
+                        name: t.name,
+                        playerIds: t.players.map((p) => p.id),
+                      })),
+                    }),
+                  }).catch(() => {});
+                }}
+              />
             : attendingPlayers.length > 0 && (
               <div className="mt-16 flex flex-col items-center py-10 text-center">
                 <p className="text-sm font-semibold text-zinc-500 mb-1.5">Teams not generated yet</p>

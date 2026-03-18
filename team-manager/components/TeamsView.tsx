@@ -21,6 +21,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { FaPaw } from 'react-icons/fa';
 import { BsGripVertical } from 'react-icons/bs';
+import { FiCopy, FiCheck } from 'react-icons/fi';
 import { SolverTeam, SolverPlayer } from '@/lib/solver';
 
 const TEAM_CONFIG: Record<string, { header: string; rowAccent: string }> = {
@@ -171,7 +172,15 @@ function TeamCard({
 }
 
 // ── Main TeamsView ────────────────────────────────────────────────────────────
-export default function TeamsView({ teams: initialTeams, isAdmin }: { teams: SolverTeam[]; isAdmin?: boolean }) {
+export default function TeamsView({
+  teams: initialTeams,
+  isAdmin,
+  onTeamsChange,
+}: {
+  teams: SolverTeam[];
+  isAdmin?: boolean;
+  onTeamsChange?: (teams: SolverTeam[]) => void;
+}) {
   const [teams, setTeams] = useState<SolverTeam[]>(() =>
     [...initialTeams].sort((a, b) => (TEAM_ORDER[a.name] ?? 9) - (TEAM_ORDER[b.name] ?? 9))
   );
@@ -223,6 +232,7 @@ export default function TeamsView({ teams: initialTeams, isAdmin }: { teams: Sol
       if (pIdx === -1) return prev;
       const [player] = srcTeam.players.splice(pIdx, 1);
       dstTeam.players.push(player);
+      onTeamsChange?.(next);
       return next;
     });
   }
@@ -234,11 +244,58 @@ export default function TeamsView({ teams: initialTeams, isAdmin }: { teams: Sol
   const activePlayer = activeId ? findPlayer(activeId) : null;
   const activeTeam = activeId ? (parseDragId(activeId)?.team ?? '') : '';
   const activeCfg = TEAM_CONFIG[activeTeam] ?? { rowAccent: 'text-zinc-400' };
+
+  const [copied, setCopied] = useState(false);
+
+  function copyToClipboard() {
+    const text = teams
+      .map((t) => {
+        const players = [...t.players]
+          .sort((a, b) => {
+            if (a.position !== b.position) return a.position === 'F' ? -1 : 1;
+            return a.name.localeCompare(b.name);
+          })
+          .map((p) => `  • ${p.name}`)
+          .join('\n');
+        return `${t.name}\n${players}`;
+      })
+      .join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
     <div className="mt-8 pt-6 border-t border-zinc-700/60">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xs font-semibold text-zinc-300 uppercase tracking-widest">Teams</h2>
-        <span className="text-[10px] text-zinc-600 italic">Drag players between teams to reassign</span>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xs font-semibold text-zinc-300 uppercase tracking-widest">Teams</h2>
+          {(() => {
+            const total = teams.reduce((s, t) => s + t.players.length, 0);
+            const expected = initialTeams.reduce((s, t) => s + t.players.length, 0);
+            const ok = total === expected;
+            return (
+              <span className={`text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded ${
+                ok ? 'text-green bg-green/10' : 'text-red-400 bg-red-500/10'
+              }`}>
+                {total}{!ok && ` / ${expected}`}
+              </span>
+            );
+          })()}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] text-zinc-600 italic">Drag players between teams to reassign</span>
+          <button
+            onClick={copyToClipboard}
+            title="Copy teams to clipboard"
+            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-200 rounded-full px-2 py-0.5 hover:bg-zinc-800/60 ring-1 ring-inset ring-transparent hover:ring-white/10 transition-all"
+          >
+            {copied
+              ? <><FiCheck className="w-3 h-3 text-green" /><span className="text-green">Copied</span></>
+              : <><FiCopy className="w-3 h-3" /><span>Copy</span></>}
+          </button>
+        </div>
       </div>
       <DndContext
         sensors={sensors}

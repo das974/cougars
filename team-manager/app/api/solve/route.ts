@@ -45,6 +45,16 @@ export async function POST(req: NextRequest) {
 
     const teams = Array.from(teamsMap.values());
 
+    // Sanity check: every input player must appear in exactly one team
+    const assignedIds = new Set(assigned.map((p) => p.id));
+    const missingIds = players.filter((p) => !assignedIds.has(p.id)).map((p) => p.name);
+    if (missingIds.length > 0) {
+      return NextResponse.json(
+        { error: `Solver did not assign all players. Missing: ${missingIds.join(', ')}` },
+        { status: 500 },
+      );
+    }
+
     // Persist new teams to Airtable
     if (sessionId) {
       await saveTeams(sessionId, teams);
