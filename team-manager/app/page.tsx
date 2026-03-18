@@ -371,6 +371,8 @@ export default function Home() {
                         onClick={() => {
                           if (!session) return;
                           setTeams(null);
+                          mutateStoredTeams({ teams: [] }, false);
+                          fetch(`/api/teams?sessionId=${session.id}`, { method: 'DELETE' }).catch(() => {});
                           const empty = new Set<string>();
                           setLocalAttending((prev) => ({ ...prev, [session.id]: empty }));
                           scheduleFlush(session.id, empty);
