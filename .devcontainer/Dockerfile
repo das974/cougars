@@ -1,10 +1,13 @@
 FROM node:24
 
-# GH, jq and sduo
+# GH, jq, sudo, curl
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gh jq sudo \
+    && apt-get install -y --no-install-recommends gh jq sudo curl \
     && rm -rf /var/lib/apt/lists/* \
     && echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Fly.io CLI
+RUN curl -L https://fly.io/install.sh | FLYCTL_INSTALL=/usr/local sh
 
 # NPM Gloabl tools, pnpm, yalc and airtable blocks CLI
 RUN npm add --global pnpm@10 yalc@1.0.0-pre.53 @airtable/blocks-cli
