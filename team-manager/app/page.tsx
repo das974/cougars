@@ -329,7 +329,7 @@ export default function Home() {
       >
       {/* Generating overlay */}
       {generating && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm pointer-events-none">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm pointer-events-none">
           <div className="three-body" role="status" aria-label="Generating teams">
             <div className="three-body__dot" />
             <div className="three-body__dot" />
