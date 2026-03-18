@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 import useSWR from 'swr';
 import Image from 'next/image';
 import { FaUserPlus, FaCopy } from 'react-icons/fa';
@@ -461,21 +462,31 @@ export default function Home() {
                     )}
                   </div>
                   <div className="flex flex-wrap gap-4">
-                    {group.map((p) => (
-                      <PlayerCard
-                        key={p.id}
-                        id={p.id}
-                        name={p.name}
-                        position={p.position}
-                        cougar={p.cougar}
-                        photoUrl={p.photoUrl}
-                        rating={p.rating}
-                        attending={true}
-                        busy={false}
-                        isAdmin={isAdmin}
-                        onToggle={handleToggle}
-                      />
-                    ))}
+                    <AnimatePresence mode="popLayout">
+                      {group.map((p) => (
+                        <motion.div
+                          key={p.id}
+                          layout
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                        >
+                          <PlayerCard
+                            id={p.id}
+                            name={p.name}
+                            position={p.position}
+                            cougar={p.cougar}
+                            photoUrl={p.photoUrl}
+                            rating={p.rating}
+                            attending={true}
+                            busy={false}
+                            isAdmin={isAdmin}
+                            onToggle={handleToggle}
+                          />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
                 </div>
               )
