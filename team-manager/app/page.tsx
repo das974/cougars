@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import Image from 'next/image';
 import { FaUserPlus } from 'react-icons/fa';
 import SplashLoader from '@/components/SplashLoader';
+import AppLogin from '@/components/AppLogin';
 import AdminButton from '@/components/AdminButton';
 import SessionSelect from '@/components/SessionSelect';
 import PlayerCard from '@/components/PlayerCard';
@@ -34,6 +35,7 @@ export default function Home() {
   const [genError,          setGenError]          = useState<string | null>(null);
   const [panelOpen,         setPanelOpen]         = useState(false);
   const [isAdmin,           setIsAdmin]           = useState(false);
+  const [isAuthenticated,   setIsAuthenticated]   = useState(false);
   const [splashExiting,     setSplashExiting]     = useState(false);
   const [splashGone,        setSplashGone]        = useState(false);
 
@@ -74,6 +76,11 @@ export default function Home() {
     debounceTimer.current = setTimeout(flush, DEBOUNCE_MS);
   }
 
+  // Restore auth state from sessionStorage
+  useEffect(() => {
+    if (sessionStorage.getItem('app_auth') === '1') setIsAuthenticated(true);
+  }, []);
+
   // Fade out the splash when data is ready
   useEffect(() => {
     if (sessions && players && !splashExiting) {
@@ -84,13 +91,15 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions, players]);
 
-  // Flush immediately when the session changes so pending writes aren't lost
+  // Flush immediately when the session changes so pending writes aren't lost;
+  // also clear any locally-generated teams so we show the session's stored teams.
   useEffect(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
       debounceTimer.current = null;
       flush();
     }
+    setTeams(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSessionId]);
 
@@ -230,7 +239,10 @@ export default function Home() {
   return (
     <>
       {!splashGone && <SplashLoader isExiting={splashExiting} />}
-      <div className={`min-h-screen bg-base transition-opacity duration-500 ${splashExiting ? 'opacity-100' : 'opacity-0'}`}>
+      {splashGone && !isAuthenticated && (
+        <AppLogin onAuth={() => { setIsAuthenticated(true); sessionStorage.setItem('app_auth', '1'); }} />
+      )}
+      <div className={`min-h-screen bg-base transition-opacity duration-500 ${splashExiting && isAuthenticated ? 'opacity-100' : 'opacity-0'}`}>
       {/* Generating overlay */}
       {generating && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm pointer-events-none">

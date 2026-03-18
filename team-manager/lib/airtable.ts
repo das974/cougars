@@ -146,18 +146,21 @@ export async function fetchTeams(sessionId: string): Promise<StoredTeam[]> {
   validateRecordId(sessionId, 'sessionId');
   const base = getBase();
   const records = await base(TEAMS_TABLE)
-    .select({
-      returnFieldsByFieldId: true,
-      // Filter server-side: only return teams linked to this session
-      filterByFormula: `FIND("${sessionId}", ARRAYJOIN({${T_SESSION}}))`,
-    })
+    .select({ returnFieldsByFieldId: true })
     .all();
 
-  return records.map((r) => ({
-    id: r.id,
-    name: (r.get(T_NAME) as string | undefined) ?? '',
-    playerIds: (r.get(T_PLAYERS) as string[] | undefined) ?? [],
-  }));
+  // Airtable formula filters on linked-record fields resolve to display names,
+  // not record IDs — so we filter in JS using the actual ID arrays from the API.
+  return records
+    .filter((r) => {
+      const linked = r.get(T_SESSION) as string[] | undefined;
+      return linked?.includes(sessionId) ?? false;
+    })
+    .map((r) => ({
+      id: r.id,
+      name: (r.get(T_NAME) as string | undefined) ?? '',
+      playerIds: (r.get(T_PLAYERS) as string[] | undefined) ?? [],
+    }));
 }
 
 // ── Delete team records ───────────────────────────────────────────────────────
