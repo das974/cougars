@@ -63,10 +63,10 @@ export default function PlayerCard({
             </div>
           )}
 
-          {/* Subtle fade into nameplate */}
+          {/* Fade into nameplate */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(10,10,14,0.95) 0%, rgba(10,10,14,0.3) 28%, transparent 55%)' }}
+            style={{ background: 'linear-gradient(to top, rgba(10,10,14,1) 0%, rgba(10,10,14,0.3) 28%, transparent 55%)' }}
           />
 
           {/* Gloss shimmer follows cursor */}
@@ -80,12 +80,19 @@ export default function PlayerCard({
             />
           )}
 
-          {/* Cougar badge — top left */}
-          {cougar && (
-            <span className="absolute top-1.5 left-1.5 inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-black/60 text-primary ring-primary/40 backdrop-blur-sm">
-              <FaPaw className="w-2.5 h-2.5" />
-            </span>
-          )}
+          {/* Top-left badges: rating (admin) + cougar paw */}
+          <div className="absolute top-1.5 left-1.5 flex gap-1">
+            {isAdmin && rating != null && rating > 0 && (
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-black/60 text-green ring-green/40 backdrop-blur-sm tabular-nums">
+                {rating}
+              </span>
+            )}
+            {cougar && (
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-black/60 text-primary ring-primary/40 backdrop-blur-sm">
+                <FaPaw className="w-2.5 h-2.5" />
+              </span>
+            )}
+          </div>
 
           {/* Admin: edit in Airtable */}
           {isAdmin && (
@@ -114,17 +121,10 @@ export default function PlayerCard({
         </div>
 
         {/* ── Nameplate ─────────────────────────────────── */}
-        <div className="shrink-0 px-2 pt-0 pb-2" style={{ background: '#0A0A0E' }}>
-          {/* Team-colour rule at very top of nameplate */}
-          <div className="w-full h-[2px] mb-1.5" style={{ background: '#CF375A' }} />
-          <p className="text-[10.5px] font-extrabold text-white uppercase tracking-widest leading-tight truncate text-center">{name}</p>
-          <div className="flex gap-1 mt-1.5 items-center">
-            {isAdmin && rating != null && rating > 0 && (
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums">
-                {rating}
-              </span>
-            )}
-          </div>
+        <div className="shrink-0" style={{ background: '#0A0A0E' }}>
+          {/* Team-colour rule with slight side padding */}
+          <div className="mx-2 h-[2px]" style={{ background: '#CF375A' }} />
+          <p className="px-2 pb-2.5 pt-1.5 text-[10.5px] font-extrabold text-white uppercase tracking-widest leading-tight truncate text-center">{name}</p>
         </div>
 
       </div>

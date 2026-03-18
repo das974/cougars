@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import useSWR from 'swr';
 import Image from 'next/image';
-import { FaUserPlus } from 'react-icons/fa';
+import { FaUserPlus, FaCopy } from 'react-icons/fa';
 import SplashLoader from '@/components/SplashLoader';
 import AppLogin from '@/components/AppLogin';
 import AdminButton from '@/components/AdminButton';
@@ -138,6 +138,17 @@ export default function Home() {
     return all.find((s) => s.id === selectedSessionId) ?? upcoming[0] ?? null;
   }, [selectedSessionId, upcoming, past]);
 
+  // Most recent session before the current one that has at least one player
+  const previousSession: Session | null = useMemo(() => {
+    if (!session) return null;
+    const sessionDate = session.date ? new Date(session.date).getTime() : Infinity;
+    const all = [...upcoming, ...past]
+      .filter((s) => s.id !== session.id && s.attendingIds.length > 0)
+      .filter((s) => s.date && new Date(s.date).getTime() < sessionDate)
+      .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime());
+    return all[0] ?? null;
+  }, [session, upcoming, past]);
+
   const attendingIds: Set<string> = useMemo(() => {
     if (!session) return new Set();
     return localAttending[session.id] ?? new Set(session.attendingIds);
@@ -183,6 +194,16 @@ export default function Home() {
     defence:  attendingPlayers.filter((p) => p.position === 'D'),
     other:    attendingPlayers.filter((p) => p.position !== 'F' && p.position !== 'D'),
   }), [attendingPlayers]);
+
+  function copyFromPrevious() {
+    if (!session || !previousSession) return;
+    const ids = new Set(previousSession.attendingIds);
+    setTeams(null);
+    mutateStoredTeams({ teams: [] }, false);
+    fetch(`/api/teams?sessionId=${session.id}`, { method: 'DELETE' }).catch(() => {});
+    setLocalAttending((prev) => ({ ...prev, [session.id]: ids }));
+    scheduleFlush(session.id, ids);
+  }
 
   // ── Toggle single player ─────────────────────────────────────────────────
   function handleToggle(playerId: string, nowAttending: boolean) {
@@ -346,15 +367,36 @@ export default function Home() {
 
         {/* Player groups */}
         {attendingPlayers.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center py-20 text-center cursor-pointer group"
-            onClick={() => setPanelOpen(true)}
-          >
-            <div className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center mb-3 transition-colors">
-              <FaUserPlus className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+          <div className="flex items-start justify-center py-20 text-center gap-12">
+            {/* Add players */}
+            <div
+              className="flex flex-col items-center cursor-pointer group"
+              onClick={() => setPanelOpen(true)}
+            >
+              <div className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center mb-3 transition-colors">
+                <FaUserPlus className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+              </div>
+              <p className="text-sm font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">No players yet</p>
+              <p className="text-xs text-zinc-600 group-hover:text-zinc-500 mt-1 transition-colors">Click to add players</p>
             </div>
-            <p className="text-sm font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">No players yet</p>
-            <p className="text-xs text-zinc-600 group-hover:text-zinc-500 mt-1 transition-colors">Click Add Players in the header to start</p>
+
+            {/* Copy from previous session */}
+            {previousSession && !isReadonly && (
+              <div
+                className="flex flex-col items-center cursor-pointer group"
+                onClick={copyFromPrevious}
+              >
+                <div className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center mb-3 transition-colors">
+                  <FaCopy className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                </div>
+                <p className="text-sm font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">Copy previous session</p>
+                <p className="text-xs text-zinc-600 group-hover:text-zinc-500 mt-1 transition-colors">
+                  {previousSession.attendingIds.length} players from {previousSession.date
+                    ? new Date(previousSession.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                    : 'last session'}
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-8">
