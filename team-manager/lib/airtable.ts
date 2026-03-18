@@ -63,6 +63,13 @@ function getBase() {
   return new Airtable({ apiKey }).base(BASE_ID);
 }
 
+/** Reject anything that doesn't look like an Airtable record ID to prevent injection. */
+function validateRecordId(id: string, label = 'record ID'): void {
+  if (!/^rec[A-Za-z0-9]{14}$/.test(id)) {
+    throw new Error(`Invalid ${label}: expected an Airtable record ID, got "${id}"`);
+  }
+}
+
 // ── Players ───────────────────────────────────────────────────────────────────
 export async function fetchPlayers(): Promise<Player[]> {
   const base = getBase();
@@ -112,6 +119,7 @@ export async function setAttendance(
   sessionId: string,
   attendingIds: string[],
 ): Promise<string[]> {
+  validateRecordId(sessionId, 'sessionId');
   const apiKey = process.env.AIRTABLE_API;
   if (!apiKey) throw new Error('AIRTABLE_API env var is not set');
 
@@ -135,21 +143,21 @@ export async function setAttendance(
 
 // ── Teams ─────────────────────────────────────────────────────────────────────
 export async function fetchTeams(sessionId: string): Promise<StoredTeam[]> {
+  validateRecordId(sessionId, 'sessionId');
   const base = getBase();
   const records = await base(TEAMS_TABLE)
-    .select({ returnFieldsByFieldId: true })
+    .select({
+      returnFieldsByFieldId: true,
+      // Filter server-side: only return teams linked to this session
+      filterByFormula: `FIND("${sessionId}", ARRAYJOIN({${T_SESSION}}))`,
+    })
     .all();
 
-  return records
-    .filter((r) => {
-      const sessions = (r.get(T_SESSION) as string[] | undefined) ?? [];
-      return sessions.includes(sessionId);
-    })
-    .map((r) => ({
-      id: r.id,
-      name: (r.get(T_NAME) as string | undefined) ?? '',
-      playerIds: (r.get(T_PLAYERS) as string[] | undefined) ?? [],
-    }));
+  return records.map((r) => ({
+    id: r.id,
+    name: (r.get(T_NAME) as string | undefined) ?? '',
+    playerIds: (r.get(T_PLAYERS) as string[] | undefined) ?? [],
+  }));
 }
 
 // ── Delete team records ───────────────────────────────────────────────────────

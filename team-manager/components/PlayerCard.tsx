@@ -4,9 +4,7 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { FaPaw } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
-
-const airtableUrl = (id: string) =>
-  `https://airtable.com/appYLV6Emy6bpluRY/tblsiauLkQkOLoesY/${id}`;
+import { airtablePlayerUrl } from '@/lib/constants';
 
 export interface PlayerCardProps {
   id: string;
@@ -81,7 +79,7 @@ export default function PlayerCard({
         {/* Admin: edit in Airtable — fades in on hover, always at right-10 */}
         {isAdmin && (
           <a
-            href={airtableUrl(id)}
+            href={airtablePlayerUrl(id)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}

@@ -22,9 +22,7 @@ export default function Home() {
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
-  // ── isPast / readonly ───────────────────────────────────────────────────────
-  // Computed after `session` is derived below — hoisted here so hooks order is stable.
-  // We derive these in the useMemo section instead; declared here for scope.
+  // Stable "today" reference — used both for session date grouping and isPast.
   const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
   const [localAttending,    setLocalAttending]    = useState<Record<string, Set<string>>>({});
   const [isSaving,          setIsSaving]          = useState(false);
@@ -99,7 +97,6 @@ export default function Home() {
   // ── Session grouping ─────────────────────────────────────────────────────
   const { upcoming, past } = useMemo(() => {
     if (!sessions) return { upcoming: [], past: [] };
-    const today = new Date(); today.setHours(0, 0, 0, 0);
     const upcoming: Session[] = [], past: Session[] = [];
     for (const s of sessions) {
       (s.date && new Date(s.date) < today ? past : upcoming).push(s);
@@ -109,7 +106,7 @@ export default function Home() {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     };
     return { upcoming: upcoming.sort(byDate), past: past.sort(byDate) };
-  }, [sessions]);
+  }, [sessions, today]);
 
   const session: Session | null = useMemo(() => {
     const all = [...upcoming, ...past];

@@ -5,9 +5,7 @@ import Image from 'next/image';
 import { FaPaw } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import type { Player } from '@/lib/airtable';
-
-const AIRTABLE_PLAYER_URL = (id: string) =>
-  `https://airtable.com/appYLV6Emy6bpluRY/tblsiauLkQkOLoesY/${id}`;
+import { airtablePlayerUrl } from '@/lib/constants';
 
 interface Props {
   players: Player[];
@@ -169,7 +167,7 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                   {/* Admin: Airtable link */}
                   {isAdmin && (
                     <a
-                      href={AIRTABLE_PLAYER_URL(p.id)}
+                      href={airtablePlayerUrl(p.id)}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
