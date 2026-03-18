@@ -78,18 +78,7 @@ export default function PlayerCard({
           }
         />
 
-        {/* Remove from session — fades in on hover */}
-        {attending && (
-          <button
-            onClick={(e) => { e.stopPropagation(); !busy && onToggle(id, false); }}
-            aria-label="Remove from session"
-            className={`absolute top-2 ${isAdmin ? 'right-10' : 'right-2'} w-7 h-7 flex items-center justify-center rounded-lg bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-sm leading-none`}
-          >
-            ✕
-          </button>
-        )}
-
-        {/* Admin: edit in Airtable — fades in on hover */}
+        {/* Admin: edit in Airtable — fades in on hover, always at right-10 */}
         {isAdmin && (
           <a
             href={airtableUrl(id)}
@@ -97,10 +86,21 @@ export default function PlayerCard({
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
             title="Edit in Airtable"
-            className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
+            className="absolute top-2 right-10 w-7 h-7 flex items-center justify-center rounded-lg bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
           >
             <FiExternalLink className="w-3.5 h-3.5" />
           </a>
+        )}
+
+        {/* Remove from session — fades in on hover, always at right-2 */}
+        {attending && (
+          <button
+            onClick={(e) => { e.stopPropagation(); !busy && onToggle(id, false); }}
+            aria-label="Remove from session"
+            className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-sm leading-none"
+          >
+            ✕
+          </button>
         )}
 
         {/* Name + badges at bottom */}
