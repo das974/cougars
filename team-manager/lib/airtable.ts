@@ -183,7 +183,35 @@ export async function deleteTeams(teamIds: string[]): Promise<void> {
   }
 }
 
-// ── Save new team records for a session ───────────────────────────────────────
+// ── Update player lists on existing team records ─────────────────────────────
+export async function updateTeamPlayers(
+  updates: Array<{ id: string; playerIds: string[] }>,
+): Promise<void> {
+  if (updates.length === 0) return;
+  updates.forEach((u) => validateRecordId(u.id, 'team ID'));
+  const apiKey = process.env.AIRTABLE_API;
+  if (!apiKey) throw new Error('AIRTABLE_API env var is not set');
+  // Airtable allows up to 10 records per PATCH request
+  for (let i = 0; i < updates.length; i += 10) {
+    const batch = updates.slice(i, i + 10);
+    const url = `https://api.airtable.com/v0/${BASE_ID}/${TEAMS_TABLE}`;
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        records: batch.map((u) => ({
+          id: u.id,
+          fields: { [T_PLAYERS]: u.playerIds },
+        })),
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Airtable update teams failed (${res.status}): ${err}`);
+    }
+  }
+}
+
 export async function saveTeams(
   sessionId: string,
   teams: Array<{ name: string; players: Array<{ id: string }> }>,

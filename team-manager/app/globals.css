@@ -208,3 +208,12 @@ html:hover::-webkit-scrollbar-thumb:hover {
 .backdrop-fade {
   animation: backdrop-fade 0.18s ease forwards;
 }
+
+/* ── Generate Teams ready-pulse ─────────────────────────────────── */
+@keyframes ready-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(207, 55, 90, 0.5); }
+  50%       { box-shadow: 0 0 0 7px rgba(207, 55, 90, 0); }
+}
+.btn-ready-pulse {
+  animation: ready-glow 2s ease-in-out infinite;
+}
