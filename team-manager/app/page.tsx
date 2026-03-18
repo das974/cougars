@@ -407,7 +407,7 @@ export default function Home() {
         {attendingPlayers.length > 0 && (
           <div className="mt-8 flex items-center gap-3">
             <span className="text-xl font-bold text-primary whitespace-nowrap">{attendingIds.size} Total</span>
-            <div className="flex-1 h-px bg-zinc-700/50" />
+            {!(teams ?? airtableTeams) && <div className="flex-1 h-px bg-zinc-700/50" />}
             {isSaving && <span className="text-zinc-500 animate-pulse text-xs">Saving…</span>}
           </div>
         )}
