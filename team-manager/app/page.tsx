@@ -271,6 +271,7 @@ export default function Home() {
   if (!sessions || !players) return <SplashLoader isExiting={false} />;
 
   const canGenerate = attendingIds.size > 0 && !generating && !isReadonly;
+  const showReadyPulse = canGenerate && !(teams ?? airtableTeams);
 
   return (
     <>
@@ -303,13 +304,18 @@ export default function Home() {
           opacity: 0.22,
         }}
       />
+      {/* Vignette — darkens edges for depth */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{ background: 'radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.65) 100%)' }}
+      />
 
       {/* Page header — full-bleed sticky bar */}
       <header className="sticky top-0 z-30 border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
         <div className="mx-auto max-w-5xl px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src="/cougars.avif" alt="Cougars" width={56} height={56} className="flex-shrink-0" />
-            <h1 className="text-sm font-semibold text-zinc-100 tracking-tight">Cougars Session Team Manager</h1>
+            <h1 className="text-sm font-semibold text-zinc-100 tracking-tight">Session Manager</h1>
           </div>
 
           <div className="flex items-center gap-4">
@@ -340,7 +346,7 @@ export default function Home() {
               className={[
                 'relative inline-flex items-center justify-center rounded-full px-5 py-1.5 text-sm font-semibold transition-colors',
                 canGenerate
-                  ? 'bg-primary text-white hover:bg-primary-dk'
+                  ? `bg-primary text-white hover:bg-primary-dk${showReadyPulse ? ' btn-ready-pulse' : ''}`
                   : 'bg-zinc-800 text-zinc-600 ring-1 ring-inset ring-white/5 cursor-not-allowed',
               ].join(' ')}
             >
@@ -404,7 +410,9 @@ export default function Home() {
               group.length === 0 ? null : (
                 <div key={label}>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-semibold text-zinc-300 uppercase tracking-widest whitespace-nowrap">
+                    <span className={`text-xs font-semibold uppercase tracking-widest whitespace-nowrap ${
+                      label === 'Forwards' ? 'text-green' : 'text-zinc-300'
+                    }`}>
                       {group.length} {label}
                     </span>
                     <div className="flex-1 h-px bg-zinc-700/50" />
@@ -460,9 +468,9 @@ export default function Home() {
           {(teams ?? airtableTeams)
             ? <TeamsView key={solveKey} teams={(teams ?? airtableTeams)!} isAdmin={isAdmin} />
             : attendingPlayers.length > 0 && (
-              <div className="mt-10 flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-dashed border-zinc-700/50 bg-zinc-900/30">
-                <p className="text-sm font-semibold text-zinc-400 mb-1">No teams generated yet</p>
-                <p className="text-xs text-zinc-600">Click <span className="text-zinc-400 font-medium">Generate Teams</span> when the roster is ready</p>
+              <div className="mt-16 flex flex-col items-center py-10 text-center">
+                <p className="text-sm font-semibold text-zinc-500 mb-1.5">Teams not generated yet</p>
+                <p className="text-xs text-zinc-600">Use <span className="text-zinc-400 font-medium">Generate Teams</span> in the header when the roster is ready</p>
               </div>
             )
           }

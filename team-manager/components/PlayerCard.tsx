@@ -48,7 +48,8 @@ export default function PlayerCard({
         boxShadow: spot
           ? '0 10px 30px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5)'
           : '0 4px 16px rgba(0,0,0,0.6)',
-        transition: 'box-shadow 0.2s ease',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+        transform: spot ? 'scale(1.03)' : 'scale(1)',
       }}
     >
       <div className="overflow-hidden flex flex-col" style={{ height: '198px' }}>

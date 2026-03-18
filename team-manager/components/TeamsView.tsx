@@ -20,13 +20,14 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { FaPaw } from 'react-icons/fa';
+import { BsGripVertical } from 'react-icons/bs';
 import { SolverTeam, SolverPlayer } from '@/lib/solver';
 
 const TEAM_CONFIG: Record<string, { header: string; rowAccent: string }> = {
-  Cougars: { header: 'text-primary',  rowAccent: 'text-primary'  },
-  Black:   { header: 'text-zinc-200', rowAccent: 'text-zinc-400' },
-  White:   { header: 'text-zinc-300', rowAccent: 'text-zinc-500' },
-  Red:     { header: 'text-red-400',  rowAccent: 'text-red-500'  },
+  Cougars: { header: 'text-primary',    rowAccent: 'text-primary'    },
+  Black:   { header: 'text-zinc-500',   rowAccent: 'text-zinc-400'   },
+  White:   { header: 'text-white',      rowAccent: 'text-zinc-300'   },
+  Red:     { header: 'text-red-400',    rowAccent: 'text-red-500'    },
   Gold:    { header: 'text-yellow-400', rowAccent: 'text-yellow-500' },
 };
 
@@ -75,7 +76,7 @@ function DraggablePlayerRow({
       ].join(' ')}
     >
       <span className="flex items-center gap-2">
-        <span className="text-zinc-600 text-[10px]">⠿</span>
+        <BsGripVertical className="w-3.5 h-3.5 text-zinc-600 flex-shrink-0" />
         <span className="text-xs text-zinc-300 font-medium">{player.name}</span>
       </span>
       <span className="flex items-center gap-1.5">
@@ -134,7 +135,7 @@ function TeamCard({
     <div
       ref={setNodeRef}
       className={[
-        'rounded-xl border bg-zinc-800/60 overflow-hidden flex flex-col transition-colors',
+        'rounded-xl border bg-zinc-700/40 overflow-hidden flex flex-col transition-colors',
         isOver ? 'border-green/40 bg-zinc-800/80' : 'border-zinc-700/60',
       ].join(' ')}
     >
