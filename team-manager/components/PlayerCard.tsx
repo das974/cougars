@@ -36,11 +36,6 @@ export default function PlayerCard({
     setSpot({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   }
 
-  // Border shifts from team red → gold highlight at the cursor position
-  const borderGradient = spot
-    ? `radial-gradient(ellipse at ${spot.x}px ${spot.y}px, #F0C060 0%, #CF375A 40%, #2A0810 75%, #CF375A 100%)`
-    : 'linear-gradient(160deg, #CF375A 0%, #3A0E1A 50%, #CF375A 100%)';
-
   return (
     <div
       ref={cardRef}
@@ -53,30 +48,15 @@ export default function PlayerCard({
       className="relative select-none cursor-pointer group active:opacity-90"
       style={{
         width: '144px',
-        /* Gradient border via background-clip trick */
-        border: '2px solid transparent',
-        backgroundImage: `linear-gradient(#17171C, #17171C), ${borderGradient}`,
-        backgroundOrigin: 'border-box',
-        backgroundClip: 'padding-box, border-box',
-        borderRadius: '11px',
+        border: '3px solid #CACACA',
+        borderRadius: '2px',
         boxShadow: spot
-          ? '0 8px 28px rgba(207,55,90,0.30), 0 2px 8px rgba(0,0,0,0.6)'
-          : '0 3px 14px rgba(0,0,0,0.65)',
+          ? '0 10px 30px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5)'
+          : '0 4px 16px rgba(0,0,0,0.6)',
         transition: 'box-shadow 0.2s ease',
       }}
     >
-      {/* Inner card — rounds content to match border */}
-      <div className="rounded-[9px] overflow-hidden flex flex-col" style={{ height: '200px' }}>
-
-        {/* ── Header strip ─────────────────────────────── */}
-        <div
-          className="flex items-center justify-center gap-1.5 py-[3px] shrink-0"
-          style={{ background: 'linear-gradient(90deg, #1A0810, #2D1020, #1A0810)' }}
-        >
-          <FaPaw className="w-2 h-2 text-primary/60" />
-          <span className="text-[7px] font-bold tracking-[0.2em] uppercase text-primary/75">Battersea Cougars</span>
-          <FaPaw className="w-2 h-2 text-primary/60" />
-        </div>
+      <div className="overflow-hidden flex flex-col" style={{ height: '198px' }}>
 
         {/* ── Photo ────────────────────────────────────── */}
         <div className="relative flex-1">
@@ -88,24 +68,24 @@ export default function PlayerCard({
             </div>
           )}
 
-          {/* Gradient into nameplate */}
+          {/* Subtle fade into nameplate */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(8,3,6,0.88) 0%, transparent 50%)' }}
+            style={{ background: 'linear-gradient(to top, rgba(10,10,14,0.95) 0%, rgba(10,10,14,0.3) 28%, transparent 55%)' }}
           />
 
-          {/* Holographic shimmer follows cursor */}
+          {/* Gloss shimmer follows cursor */}
           {spot && (
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: `radial-gradient(100px circle at ${spot.x}px ${spot.y - 14}px, rgba(255,255,255,0.11), transparent 65%)`,
+                background: `radial-gradient(110px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.12), transparent 70%)`,
                 mixBlendMode: 'screen',
               }}
             />
           )}
 
-          {/* Admin: edit in Airtable — fades in on hover, always at right-9 */}
+          {/* Admin: edit in Airtable */}
           {isAdmin && (
             <a
               href={airtablePlayerUrl(id)}
@@ -113,18 +93,18 @@ export default function PlayerCard({
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               title="Edit in Airtable"
-              className="absolute top-1.5 right-9 w-6 h-6 flex items-center justify-center rounded-md bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
+              className="absolute top-1.5 right-9 w-6 h-6 flex items-center justify-center rounded-sm bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
             >
               <FiExternalLink className="w-3 h-3" />
             </a>
           )}
 
-          {/* Remove from session — fades in on hover, always at right-1.5 */}
+          {/* Remove from session */}
           {attending && (
             <button
               onClick={(e) => { e.stopPropagation(); !busy && onToggle(id, false); }}
               aria-label="Remove from session"
-              className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-md bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-xs leading-none"
+              className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-sm bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-xs leading-none"
             >
               ✕
             </button>
@@ -132,32 +112,33 @@ export default function PlayerCard({
         </div>
 
         {/* ── Nameplate ─────────────────────────────────── */}
-        <div
-          className="shrink-0 px-2.5 pt-1.5 pb-2"
-          style={{ background: 'linear-gradient(180deg, #110508 0%, #17171C 100%)' }}
-        >
-          {/* Team-colour accent rule */}
-          <div className="w-full h-px mb-1.5" style={{ background: 'linear-gradient(90deg, transparent, #CF375A80, transparent)' }} />
-          <p className="text-[11px] font-extrabold text-white uppercase tracking-wider leading-tight truncate">{name}</p>
+        <div className="shrink-0 px-2 pt-0 pb-2" style={{ background: '#0A0A0E' }}>
+          {/* Team-colour rule at very top of nameplate */}
+          <div className="w-full h-[2px] mb-1.5" style={{ background: '#CF375A' }} />
+          <p className="text-[10.5px] font-extrabold text-white uppercase tracking-widest leading-tight truncate">{name}</p>
           <div className="flex gap-1 mt-1.5 flex-wrap items-center">
             {position && (
-              <span className={`inline-flex items-center rounded px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${POS_STYLE[position] ?? 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'}`}>
+              <span className={`inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${POS_STYLE[position] ?? 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'}`}>
                 {position}
               </span>
             )}
             {cougar && (
-              <span className="inline-flex items-center rounded px-1 py-0.5 text-[8px] font-bold uppercase ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
+              <span className="inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-bold uppercase ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
                 <FaPaw className="w-2 h-2" />
               </span>
             )}
             {isAdmin && rating != null && rating > 0 && (
-              <span className="inline-flex items-center rounded px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums ml-auto">
+              <span className="inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums ml-auto">
                 {rating}
               </span>
             )}
           </div>
         </div>
 
+      </div>
+    </div>
+  );
+}
       </div>
     </div>
   );
