@@ -1,0 +1,10 @@
+services:
+  devcontainer:
+    build: .
+    hostname: devcontainer.local
+    working_dir: /src
+    init: true
+    command: sleep infinity
+volumes:
+  ark-node-modules:
+  ark-forge:

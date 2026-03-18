@@ -1,0 +1,21 @@
+{
+  "service": "devcontainer",
+  "workspaceFolder": "/src",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "mounts": [
+    "source=..,target=/src,type=bind,consistency=cached",
+    "source=bashhistory,target=/commandhistory,type=volume"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "vitest.explorer@1.40.0", // pinned until confirm coverage is working again
+        "vscode-icons-team.vscode-icons"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "postStartCommand": "bash /src/.devcontainer/post-start.sh",
+  "remoteUser": "node"
+}

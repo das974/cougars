@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0D0D10;
+  --foreground: #F0F0F4;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* ── Cougars brand ────────────────────────────────────────────── */
+  --color-primary:    #CF375A;   /* Cougars red — CTA, active, brand   */
+  --color-primary-dk: #B82E4D;   /* darker red for hover               */
+
+  /* ── Complementary accents ───────────────────────────────────── */
+  --color-green: #34D399;        /* Protocol emerald — interactive accent     */
+
+  /* ── Surfaces (warm near-black scale) ────────────────────────── */
+  --color-base:    #0D0D10;      /* page background                    */
+  --color-surface: #17171C;      /* cards, panels                      */
+  --color-overlay: #232329;      /* inputs, hover bg                   */
+  --color-edge:    #38383F;      /* borders, dividers                  */
+
+  /* ── Text ────────────────────────────────────────────────────── */
+  --color-hi:  #F0F0F4;          /* primary text                       */
+  --color-mid: #A0A0AC;          /* secondary text                     */
+  --color-lo:  #6A6A78;          /* muted / labels                     */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Three-body loader (uiverse.io/dovatgabriel/tidy-walrus-92, MIT) ─ */
+.three-body {
+  --uib-size: 50px;
+  --uib-speed: 0.8s;
+  --uib-color: #34D399;
+  position: relative;
+  display: inline-block;
+  height: var(--uib-size);
+  width: var(--uib-size);
+  animation: spin78236 calc(var(--uib-speed) * 2.5) infinite linear;
+}
+.three-body__dot {
+  position: absolute;
+  height: 100%;
+  width: 30%;
+}
+.three-body__dot:after {
+  content: '';
+  position: absolute;
+  height: 0%;
+  width: 100%;
+  padding-bottom: 100%;
+  background-color: var(--uib-color);
+  border-radius: 50%;
+}
+.three-body__dot:nth-child(1) {
+  bottom: 5%;
+  left: 0;
+  transform: rotate(60deg);
+  transform-origin: 50% 85%;
+}
+.three-body__dot:nth-child(1)::after {
+  bottom: 0;
+  left: 0;
+  animation: wobble1 var(--uib-speed) infinite ease-in-out;
+  animation-delay: calc(var(--uib-speed) * -0.3);
+}
+.three-body__dot:nth-child(2) {
+  bottom: 5%;
+  right: 0;
+  transform: rotate(-60deg);
+  transform-origin: 50% 85%;
+}
+.three-body__dot:nth-child(2)::after {
+  bottom: 0;
+  left: 0;
+  animation: wobble1 var(--uib-speed) infinite calc(var(--uib-speed) * -0.15) ease-in-out;
+}
+.three-body__dot:nth-child(3) {
+  bottom: -5%;
+  left: 0;
+  transform: translateX(116.666%);
+}
+.three-body__dot:nth-child(3)::after {
+  top: 0;
+  left: 0;
+  animation: wobble2 var(--uib-speed) infinite ease-in-out;
+}
+@keyframes spin78236 {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes wobble1 {
+  0%, 100% { transform: translateY(0%) scale(1); opacity: 1; }
+  50%      { transform: translateY(-66%) scale(0.65); opacity: 0.8; }
+}
+@keyframes wobble2 {
+  0%, 100% { transform: translateY(0%) scale(1); opacity: 1; }
+  50%      { transform: translateY(66%) scale(0.65); opacity: 0.8; }
+}
+
+/* ── Roster row hover — slow fade in, instant out ───────────────── */
+.roster-row {
+  background-color: transparent;
+  transition: none;
+}
+.roster-row:hover {
+  background-color: rgb(39, 39, 42); /* zinc-800 */
+  transition: background-color 350ms ease-in-out;
+}
+.panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.panel-scroll:hover {
+  scrollbar-color: #3f3f46 transparent;
+}
+
+.panel-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 0;
+}
+
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 0;
+}
+
+.panel-scroll:hover::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
+
+.panel-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background: #71717a;
+}
+
+/* ── Main page scrollbar — hidden until hover ────────────────────── */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.4s ease;
+}
+
+html:hover {
+  scrollbar-color: #3f3f46 transparent;
+}
+
+html::-webkit-scrollbar {
+  width: 6px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 3px;
+  transition: background-color 0.4s ease;
+}
+
+html:hover::-webkit-scrollbar-thumb {
+  background-color: #3f3f46;
+}
+
+html:hover::-webkit-scrollbar-thumb:hover {
+  background-color: #71717a;
+}
+
+@keyframes toast-slide-up {
+  from {
+    transform: translateY(calc(-100% - 1.5rem));
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.toast-slide-up {
+  animation: toast-slide-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.modal-pop {
+  animation: modal-pop 0.22s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+@keyframes backdrop-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.backdrop-fade {
+  animation: backdrop-fade 0.18s ease forwards;
+}
