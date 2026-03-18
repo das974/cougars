@@ -19,11 +19,6 @@ export interface PlayerCardProps {
   onToggle: (id: string, attending: boolean) => void;
 }
 
-const POS_STYLE: Record<string, string> = {
-  F: 'bg-green/20 text-green ring-green/30',
-  D: 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30',
-};
-
 export default function PlayerCard({
   id, name, position, cougar, photoUrl, rating, busy, attending, isAdmin, onToggle,
 }: PlayerCardProps) {
@@ -48,7 +43,7 @@ export default function PlayerCard({
       className="relative select-none cursor-pointer group active:opacity-90"
       style={{
         width: '144px',
-        border: '3px solid #CACACA',
+        border: '2px solid rgba(255,255,255,0.10)',
         borderRadius: '2px',
         boxShadow: spot
           ? '0 10px 30px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5)'
@@ -61,7 +56,7 @@ export default function PlayerCard({
         {/* ── Photo ────────────────────────────────────── */}
         <div className="relative flex-1">
           {photoUrl ? (
-            <Image src={photoUrl} alt={name} fill sizes="144px" className="object-cover" unoptimized />
+            <Image src={photoUrl} alt={name} fill sizes="144px" className="object-cover object-top" unoptimized />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
               <span className="text-5xl font-bold text-zinc-600 select-none">{name[0]?.toUpperCase()}</span>
@@ -83,6 +78,13 @@ export default function PlayerCard({
                 mixBlendMode: 'screen',
               }}
             />
+          )}
+
+          {/* Cougar badge — top left */}
+          {cougar && (
+            <span className="absolute top-1.5 left-1.5 inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-black/60 text-primary ring-primary/40 backdrop-blur-sm">
+              <FaPaw className="w-2.5 h-2.5" />
+            </span>
           )}
 
           {/* Admin: edit in Airtable */}
@@ -115,30 +117,16 @@ export default function PlayerCard({
         <div className="shrink-0 px-2 pt-0 pb-2" style={{ background: '#0A0A0E' }}>
           {/* Team-colour rule at very top of nameplate */}
           <div className="w-full h-[2px] mb-1.5" style={{ background: '#CF375A' }} />
-          <p className="text-[10.5px] font-extrabold text-white uppercase tracking-widest leading-tight truncate">{name}</p>
-          <div className="flex gap-1 mt-1.5 flex-wrap items-center">
-            {position && (
-              <span className={`inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${POS_STYLE[position] ?? 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'}`}>
-                {position}
-              </span>
-            )}
-            {cougar && (
-              <span className="inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-bold uppercase ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
-                <FaPaw className="w-2 h-2" />
-              </span>
-            )}
+          <p className="text-[10.5px] font-extrabold text-white uppercase tracking-widest leading-tight truncate text-center">{name}</p>
+          <div className="flex gap-1 mt-1.5 items-center">
             {isAdmin && rating != null && rating > 0 && (
-              <span className="inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums ml-auto">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums">
                 {rating}
               </span>
             )}
           </div>
         </div>
 
-      </div>
-    </div>
-  );
-}
       </div>
     </div>
   );

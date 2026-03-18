@@ -80,21 +80,21 @@ function DraggablePlayerRow({
       </span>
       <span className="flex items-center gap-1.5">
         {player.cougar && (
-          <span className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide bg-primary/20 text-primary ring-1 ring-inset ring-primary/35">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
             <FaPaw className="w-2 h-2" />
           </span>
         )}
-        {isAdmin && player.rating > 0 && (
-          <span className="text-[10px] text-green/70 tabular-nums">{player.rating}</span>
-        )}
         {player.position && (
-          <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-semibold ring-1 ring-inset uppercase tracking-wide ${
+          <span className={`inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${
             player.position === 'F'
               ? 'bg-green/20 text-green ring-green/30'
               : 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'
           }`}>
             {player.position}
           </span>
+        )}
+        {isAdmin && player.rating > 0 && (
+          <span className="text-[10px] text-green/70 tabular-nums">{player.rating}</span>
         )}
       </span>
     </div>
