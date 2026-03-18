@@ -19,6 +19,11 @@ export interface PlayerCardProps {
   onToggle: (id: string, attending: boolean) => void;
 }
 
+const POS_STYLE: Record<string, string> = {
+  F: 'bg-green/20 text-green ring-green/30',
+  D: 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30',
+};
+
 export default function PlayerCard({
   id, name, position, cougar, photoUrl, rating, busy, attending, isAdmin, onToggle,
 }: PlayerCardProps) {
@@ -31,6 +36,11 @@ export default function PlayerCard({
     setSpot({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   }
 
+  // Border shifts from team red → gold highlight at the cursor position
+  const borderGradient = spot
+    ? `radial-gradient(ellipse at ${spot.x}px ${spot.y}px, #F0C060 0%, #CF375A 40%, #2A0810 75%, #CF375A 100%)`
+    : 'linear-gradient(160deg, #CF375A 0%, #3A0E1A 50%, #CF375A 100%)';
+
   return (
     <div
       ref={cardRef}
@@ -40,94 +50,114 @@ export default function PlayerCard({
       role="button"
       tabIndex={busy ? -1 : 0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); !busy && !attending && onToggle(id, true); }}}
-      className="relative w-36 rounded-xl overflow-hidden text-left select-none group ring-1 ring-zinc-700/80 hover:ring-primary/70 transition-all duration-200 active:opacity-80 bg-zinc-800 cursor-pointer"
+      className="relative select-none cursor-pointer group active:opacity-90"
+      style={{
+        width: '144px',
+        /* Gradient border via background-clip trick */
+        border: '2px solid transparent',
+        backgroundImage: `linear-gradient(#17171C, #17171C), ${borderGradient}`,
+        backgroundOrigin: 'border-box',
+        backgroundClip: 'padding-box, border-box',
+        borderRadius: '11px',
+        boxShadow: spot
+          ? '0 8px 28px rgba(207,55,90,0.30), 0 2px 8px rgba(0,0,0,0.6)'
+          : '0 3px 14px rgba(0,0,0,0.65)',
+        transition: 'box-shadow 0.2s ease',
+      }}
     >
-      {/* Photo — fills the whole card */}
-      <div className="relative w-full" style={{ paddingBottom: '133%' }}>
-        {photoUrl ? (
-          <Image
-            src={photoUrl}
-            alt={name}
-            fill
-            sizes="144px"
-            className="object-cover"
-            unoptimized
+      {/* Inner card — rounds content to match border */}
+      <div className="rounded-[9px] overflow-hidden flex flex-col" style={{ height: '200px' }}>
+
+        {/* ── Header strip ─────────────────────────────── */}
+        <div
+          className="flex items-center justify-center gap-1.5 py-[3px] shrink-0"
+          style={{ background: 'linear-gradient(90deg, #1A0810, #2D1020, #1A0810)' }}
+        >
+          <FaPaw className="w-2 h-2 text-primary/60" />
+          <span className="text-[7px] font-bold tracking-[0.2em] uppercase text-primary/75">Battersea Cougars</span>
+          <FaPaw className="w-2 h-2 text-primary/60" />
+        </div>
+
+        {/* ── Photo ────────────────────────────────────── */}
+        <div className="relative flex-1">
+          {photoUrl ? (
+            <Image src={photoUrl} alt={name} fill sizes="144px" className="object-cover" unoptimized />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
+              <span className="text-5xl font-bold text-zinc-600 select-none">{name[0]?.toUpperCase()}</span>
+            </div>
+          )}
+
+          {/* Gradient into nameplate */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(8,3,6,0.88) 0%, transparent 50%)' }}
           />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
-            <span className="text-5xl font-bold text-zinc-600 select-none">
-              {name[0]?.toUpperCase()}
-            </span>
-          </div>
-        )}
 
-        {/* Bottom gradient */}
+          {/* Holographic shimmer follows cursor */}
+          {spot && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `radial-gradient(100px circle at ${spot.x}px ${spot.y - 14}px, rgba(255,255,255,0.11), transparent 65%)`,
+                mixBlendMode: 'screen',
+              }}
+            />
+          )}
+
+          {/* Admin: edit in Airtable — fades in on hover, always at right-9 */}
+          {isAdmin && (
+            <a
+              href={airtablePlayerUrl(id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title="Edit in Airtable"
+              className="absolute top-1.5 right-9 w-6 h-6 flex items-center justify-center rounded-md bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
+            >
+              <FiExternalLink className="w-3 h-3" />
+            </a>
+          )}
+
+          {/* Remove from session — fades in on hover, always at right-1.5 */}
+          {attending && (
+            <button
+              onClick={(e) => { e.stopPropagation(); !busy && onToggle(id, false); }}
+              aria-label="Remove from session"
+              className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-md bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-xs leading-none"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* ── Nameplate ─────────────────────────────────── */}
         <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.0) 60%)' }}
-        />
-
-        {/* Spotlight — follows the mouse */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={spot
-            ? { background: `radial-gradient(120px circle at ${spot.x}px ${spot.y}px, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 70%)` }
-            : { background: 'transparent' }
-          }
-        />
-
-        {/* Admin: edit in Airtable — fades in on hover, always at right-10 */}
-        {isAdmin && (
-          <a
-            href={airtablePlayerUrl(id)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            title="Edit in Airtable"
-            className="absolute top-2 right-10 w-7 h-7 flex items-center justify-center rounded-lg bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
-          >
-            <FiExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
-
-        {/* Remove from session — fades in on hover, always at right-2 */}
-        {attending && (
-          <button
-            onClick={(e) => { e.stopPropagation(); !busy && onToggle(id, false); }}
-            aria-label="Remove from session"
-            className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-sm leading-none"
-          >
-            ✕
-          </button>
-        )}
-
-        {/* Name + badges at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5">
-          <p className="text-sm font-semibold text-white leading-tight truncate mb-1.5">{name}</p>
-          <div className="flex gap-1 flex-wrap">
+          className="shrink-0 px-2.5 pt-1.5 pb-2"
+          style={{ background: 'linear-gradient(180deg, #110508 0%, #17171C 100%)' }}
+        >
+          {/* Team-colour accent rule */}
+          <div className="w-full h-px mb-1.5" style={{ background: 'linear-gradient(90deg, transparent, #CF375A80, transparent)' }} />
+          <p className="text-[11px] font-extrabold text-white uppercase tracking-wider leading-tight truncate">{name}</p>
+          <div className="flex gap-1 mt-1.5 flex-wrap items-center">
             {position && (
-              <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-semibold ring-1 ring-inset uppercase tracking-wide ${
-                position === 'F'
-                  ? 'bg-green/20 text-green ring-green/30'
-                  : position === 'D'
-                  ? 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'
-                  : 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'
-              }`}>
+              <span className={`inline-flex items-center rounded px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${POS_STYLE[position] ?? 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'}`}>
                 {position}
               </span>
             )}
             {cougar && (
-              <span className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide bg-primary/20 text-primary ring-1 ring-inset ring-primary/35">
+              <span className="inline-flex items-center rounded px-1 py-0.5 text-[8px] font-bold uppercase ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
                 <FaPaw className="w-2 h-2" />
               </span>
             )}
             {isAdmin && rating != null && rating > 0 && (
-              <span className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-semibold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums">
+              <span className="inline-flex items-center rounded px-1 py-0.5 text-[8px] font-bold ring-1 ring-inset bg-green/10 text-green ring-green/25 tabular-nums ml-auto">
                 {rating}
               </span>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );
