@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
 import Image from 'next/image';
 import { FaUserPlus, FaCopy } from 'react-icons/fa';
@@ -30,10 +31,20 @@ function deleteCookie(name: string) {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: sessions, error: sessionsError } = useSWR<Session[]>('/api/sessions', fetcher);
   const { data: players,  error: playersError  } = useSWR<Player[]>('/api/players',  fetcher);
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+  // Restore session from URL on mount
+  useEffect(() => {
+    const sessionIdFromUrl = searchParams.get('sessionId');
+    if (sessionIdFromUrl) {
+      setSelectedSessionId(sessionIdFromUrl);
+    }
+  }, [searchParams]);
 
   // Stable "today" reference — used both for session date grouping and isPast.
   const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
@@ -88,7 +99,7 @@ export default function Home() {
     debounceTimer.current = setTimeout(flush, DEBOUNCE_MS);
   }
 
-  // Restore auth state from cookies
+  // Restore auth state from cookies (synchronous)
   useEffect(() => {
     if (getCookie('app_auth') === '1') {
       setIsAuthenticated(true);
@@ -167,6 +178,16 @@ export default function Home() {
   }, [session, today]);
 
   const isReadonly = isPast && !isAdmin;
+
+  // Update URL to reflect the current session (on auto-selection or manual change)
+  useEffect(() => {
+    if (session) {
+      const currentSessionId = searchParams.get('sessionId');
+      if (currentSessionId !== session.id) {
+        router.replace(`?sessionId=${session.id}`, { scroll: false });
+      }
+    }
+  }, [session, searchParams, router]);
 
   // ── Airtable teams for this session ─────────────────────────────────────────
   const { data: storedTeamsData, mutate: mutateStoredTeams } = useSWR<{ teams: StoredTeam[] }>(
@@ -282,15 +303,13 @@ export default function Home() {
           backgroundImage: 'url(/cougars_background.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.22,
+          opacity: 0.3,
         }}
-      />
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: 'radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.65) 100%)' }}
       />
 
       {!splashGone && <SplashLoader isExiting={splashExiting} />}
+      
+      {/* AppLogin shown only after splash is gone AND not authenticated */}
       {splashGone && !isAuthenticated && (
         <AppLogin onAuth={(adminMode) => {
           setIsAuthenticated(true);
@@ -298,7 +317,15 @@ export default function Home() {
           if (adminMode) { setIsAdmin(true); setCookie('admin_auth', '1'); }
         }} />
       )}
-      <div className={`min-h-screen bg-base/0 transition-opacity duration-500 ${splashExiting && isAuthenticated ? 'opacity-100' : 'opacity-0'}`}>
+      
+      {/* Main app rendered while splash is visible (pointer-events-none), then shown when splashGone */}
+      <div 
+        className="min-h-screen bg-base/0"
+        style={{
+          pointerEvents: splashGone && isAuthenticated ? 'auto' : 'none',
+          visibility: isAuthenticated ? 'visible' : 'hidden',
+        }}
+      >
       {/* Generating overlay */}
       {generating && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm pointer-events-none">
@@ -311,8 +338,8 @@ export default function Home() {
       )}
 
       {/* Page header — full-bleed fixed bar */}
-      <header className="fixed top-0 inset-x-0 z-30 border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
-        <div className="mx-auto max-w-5xl px-8 py-5 flex items-center justify-between">
+      <header className="fixed top-0 inset-x-0 z-30 min-h-[96px] border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
+        <div className="mx-auto max-w-5xl px-8 py-5 flex items-center justify-between h-full">
           <div className="flex items-center gap-3">
             <Image src="/cougars.avif" alt="Cougars" width={56} height={56} className="flex-shrink-0" />
             <h1 className="text-sm font-semibold text-zinc-100 tracking-tight">Session Manager</h1>
@@ -459,7 +486,7 @@ export default function Home() {
         {attendingPlayers.length > 0 && (
           <div className="mt-8 flex items-center gap-3">
             <span className="text-xl font-bold text-primary whitespace-nowrap">{attendingIds.size} Total</span>
-            {!(teams ?? airtableTeams) && <div className="flex-1 h-px bg-zinc-700/50" />}
+            <div className="flex-1 h-px bg-zinc-700/50" />
             {isSaving && <span className="text-zinc-500 animate-pulse text-xs">Saving…</span>}
           </div>
         )}
@@ -520,7 +547,7 @@ export default function Home() {
           </div>
         </div>
       )}
-    </div>
+      </div>
     </>
   );
 }

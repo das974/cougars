@@ -267,7 +267,7 @@ export default function TeamsView({
   }
 
   return (
-    <div className="mt-8 pt-6 border-t border-zinc-700/60">
+    <div className="mt-8 pt-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <h2 className="text-xs font-semibold text-zinc-300 uppercase tracking-widest">Teams</h2>

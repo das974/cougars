@@ -36,11 +36,9 @@ export default function PlayerCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setSpot(null)}
-      onClick={() => !busy && !attending && onToggle(id, true)}
       role="button"
-      tabIndex={busy ? -1 : 0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); !busy && !attending && onToggle(id, true); }}}
-      className="relative select-none cursor-pointer group active:opacity-90"
+      tabIndex={-1}
+      className="relative select-none group active:opacity-90"
       style={{
         width: '144px',
         border: '2px solid rgba(255,255,255,0.10)',
@@ -75,7 +73,7 @@ export default function PlayerCard({
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: `radial-gradient(110px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.12), transparent 70%)`,
+                background: `radial-gradient(150px circle at ${spot.x}px ${spot.y}px, rgba(207,55,90,0.08), transparent 70%)`,
                 mixBlendMode: 'screen',
               }}
             />
