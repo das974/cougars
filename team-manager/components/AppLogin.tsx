@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 
 interface Props {
-  onAuth: () => void;
+  onAuth: (isAdmin: boolean) => void;
 }
 
 export default function AppLogin({ onAuth }: Props) {
@@ -24,7 +24,8 @@ export default function AppLogin({ onAuth }: Props) {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        onAuth();
+        const data = await res.json();
+        onAuth(data.isAdmin ?? false);
       } else {
         setError('Wrong password');
         setPassword('');

@@ -17,6 +17,18 @@ import type { SolverTeam } from '@/lib/solver';
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 const DEBOUNCE_MS = 600;
 
+function getCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  return document.cookie.split('; ').find((r) => r.startsWith(name + '='))?.split('=')[1];
+}
+function setCookie(name: string, value: string, days = 30) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict`;
+}
+function deleteCookie(name: string) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict`;
+}
+
 export default function Home() {
   const { data: sessions, error: sessionsError } = useSWR<Session[]>('/api/sessions', fetcher);
   const { data: players,  error: playersError  } = useSWR<Player[]>('/api/players',  fetcher);
@@ -76,9 +88,12 @@ export default function Home() {
     debounceTimer.current = setTimeout(flush, DEBOUNCE_MS);
   }
 
-  // Restore auth state from sessionStorage
+  // Restore auth state from cookies
   useEffect(() => {
-    if (sessionStorage.getItem('app_auth') === '1') setIsAuthenticated(true);
+    if (getCookie('app_auth') === '1') {
+      setIsAuthenticated(true);
+      if (getCookie('admin_auth') === '1') setIsAdmin(true);
+    }
   }, []);
 
   // Fade out the splash when data is ready
@@ -240,7 +255,11 @@ export default function Home() {
     <>
       {!splashGone && <SplashLoader isExiting={splashExiting} />}
       {splashGone && !isAuthenticated && (
-        <AppLogin onAuth={() => { setIsAuthenticated(true); sessionStorage.setItem('app_auth', '1'); }} />
+        <AppLogin onAuth={(adminMode) => {
+          setIsAuthenticated(true);
+          setCookie('app_auth', '1');
+          if (adminMode) { setIsAdmin(true); setCookie('admin_auth', '1'); }
+        }} />
       )}
       <div className={`min-h-screen bg-base transition-opacity duration-500 ${splashExiting && isAuthenticated ? 'opacity-100' : 'opacity-0'}`}>
       {/* Generating overlay */}
@@ -313,7 +332,11 @@ export default function Home() {
             </button>
 
             {/* Admin */}
-            <AdminButton isAdmin={isAdmin} onAdminChange={setIsAdmin} />
+            <AdminButton isAdmin={isAdmin} onAdminChange={(v) => {
+              setIsAdmin(v);
+              if (v) setCookie('admin_auth', '1');
+              else deleteCookie('admin_auth');
+            }} />
           </div>
         </div>
       </header>
