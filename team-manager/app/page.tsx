@@ -394,6 +394,14 @@ function HomeContent() {
       {/* Main content — padded to clear fixed header */}
       <main className="mx-auto max-w-5xl px-4 sm:px-8 pt-20 sm:pt-32 pb-8 relative z-10">
 
+        <AnimatePresence mode="wait">
+        <motion.div
+          key={session?.id ?? ''}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+        >
         {attendingIds.size === 0 && !showAllMode ? (
           <div className="flex items-start justify-center py-20 text-center gap-12">
             {previousSession && !isReadonly && (
@@ -483,6 +491,8 @@ function HomeContent() {
             </div>
           </div>
         )}
+        </motion.div>
+        </AnimatePresence>
 
         <div ref={teamsRef}>
           {(teams ?? airtableTeams)
