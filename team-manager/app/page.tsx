@@ -340,17 +340,17 @@ function HomeContent() {
       )}
 
       {/* Page header — full-bleed fixed bar */}
-      <header className="fixed top-0 inset-x-0 z-30 min-h-[96px] border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
-        <div className="mx-auto max-w-5xl px-8 py-5 flex items-center justify-between h-full">
-          <div className="flex items-center gap-3">
-            <Image src="/cougars.avif" alt="Cougars" width={56} height={56} className="flex-shrink-0" />
-            <h1 className="text-sm font-semibold text-zinc-100 tracking-tight">Session Manager</h1>
+      <header className="fixed top-0 inset-x-0 z-30 min-h-20 sm:min-h-[96px] border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
+        <div className="mx-auto max-w-5xl px-4 sm:px-8 py-3 sm:py-5 flex items-center justify-between h-full">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Image src="/cougars.avif" alt="Cougars" width={56} height={56} className="flex-shrink-0 w-10 sm:w-14 h-10 sm:h-14" />
+            <h1 className="text-xs sm:text-sm font-semibold text-zinc-100 tracking-tight">Session Manager</h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Session picker */}
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-zinc-500">Session</label>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <label className="text-xs font-medium text-zinc-500 hidden sm:inline">Session</label>
               <SessionSelect
                 upcoming={upcoming}
                 past={past}
@@ -359,13 +359,13 @@ function HomeContent() {
               />
             </div>
 
-            {/* Add Players */}
+            {/* Add Players — hide on very small screens */}
             <button
               onClick={() => setPanelOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 px-3.5 py-1.5 text-sm font-medium text-zinc-300 ring-1 ring-inset ring-white/10 hover:bg-zinc-700 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-zinc-800 px-2 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-sm font-medium text-zinc-300 ring-1 ring-inset ring-white/10 hover:bg-zinc-700 hover:text-white transition-colors"
             >
-              <FaUserPlus className="w-3.5 h-3.5" />
-              Add Players
+              <FaUserPlus className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+              <span className="hidden sm:inline">Add</span>
             </button>
 
             {/* Generate */}
@@ -373,17 +373,17 @@ function HomeContent() {
               onClick={handleGenerate}
               disabled={!canGenerate}
               className={[
-                'relative inline-flex items-center justify-center rounded-full px-5 py-1.5 text-sm font-semibold transition-colors',
+                'relative inline-flex items-center justify-center rounded-full px-2 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold transition-colors',
                 canGenerate
                   ? `bg-primary text-white hover:bg-primary-dk${showReadyPulse ? ' btn-ready-pulse' : ''}`
                   : 'bg-zinc-800 text-zinc-600 ring-1 ring-inset ring-white/5 cursor-not-allowed',
               ].join(' ')}
             >
               {/* Invisible spacer always sized to the longer label */}
-              <span className="invisible whitespace-nowrap">Generate Teams</span>
+              <span className="invisible whitespace-nowrap text-xs sm:text-sm">Generate Teams</span>
               {/* Visible label absolutely centred — never affects layout */}
-              <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap">
-                {generating ? 'Solving…' : 'Generate Teams'}
+              <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap text-xs sm:text-sm">
+                {generating ? 'Solving…' : <span className="hidden sm:inline">Generate Teams</span> || <span className="sm:hidden">Gen</span>}
               </span>
             </button>
 
@@ -397,8 +397,8 @@ function HomeContent() {
         </div>
       </header>
 
-      {/* Main content — padded to clear fixed header (py-5 × 2 + 56px image = 96px) */}
-      <main className="mx-auto max-w-5xl px-8 pt-32 pb-8 relative z-10">
+      {/* Main content — padded to clear fixed header */}
+      <main className="mx-auto max-w-5xl px-4 sm:px-8 pt-24 sm:pt-32 pb-8 relative z-10">
 
         {/* Player groups */}
         {attendingPlayers.length === 0 ? (
@@ -462,7 +462,7 @@ function HomeContent() {
                       </button>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-2 sm:gap-4">
                     <AnimatePresence mode="popLayout">
                       {group.map((p) => (
                         <motion.div
