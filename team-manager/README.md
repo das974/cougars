@@ -6,19 +6,20 @@ A web app for managing Friday training sessions. The coach selects which players
 
 ## How the team generator works
 
-When you hit **Generate Teams**, the app uses a mathematical optimisation solver to split the attending players into balanced teams. Here's what it does in plain English:
+When you hit **Generate Teams**, the app automatically splits the attending players into balanced teams. Here's what happens:
 
-1. **Counts the players** and decides how many teams to create so each team has between 3 and 7 players. For example, 14 players → 2 teams; 18 players → 3 teams.
+1. **Decides team count** — it figures out how many teams to make based on how many players showed up, aiming for roughly equal-sized teams (3–7 players each).
 
-2. **Keeps Cougars together.** Players flagged as "Cougars" (the club's registered senior players) are grouped onto a single team as much as possible. This is done first, before anything else is optimised.
+2. **Groups the Cougars** — all the players flagged as Cougars are put on the same team first. This is the top priority.
 
-3. **Balances the teams.** Once the Cougar grouping is locked in, the solver adjusts the remaining assignments to make the teams as equal as possible — minimising the difference in both team size and combined skill rating across all teams.
+3. **Balances the rest** — the remaining players are assigned to even out the teams by size and skill level, so no team is too strong or too weak.
 
-4. **Ensures position coverage.** If there are enough defenders (D) and forwards (F) to go around, every team is guaranteed at least one of each.
+4. **Mixes positions** — each team gets a mix of defenders and forwards (when possible).
 
-5. **Names the teams.** The team with the most Cougars gets labelled "Cougars". The others are named White, Black, Red, Gold in that order.
+5. **Names the teams** — the Cougar team is called "Cougars"; the others get color names like White, Black, Red, Gold.
 
-The solver runs in under a second and always finds the mathematically best solution given those rules. After generation, you can still drag and drop players between teams to make manual tweaks.
+It takes less than a second. If you want to make changes after it generates the teams, just drag and drop players between teams.
+
 
 ---
 
