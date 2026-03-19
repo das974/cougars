@@ -100,7 +100,7 @@ export default function PlayerCard({
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               title="Edit in Airtable"
-              className="absolute top-1 sm:top-1.5 right-7 sm:right-9 w-5 sm:w-6 h-5 sm:h-6 flex items-center justify-center rounded-sm bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm"
+              className="absolute top-1 sm:top-1.5 right-7 sm:right-9 w-5 sm:w-6 h-5 sm:h-6 flex items-center justify-center rounded-sm bg-black/55 text-zinc-300 hover:text-white hover:bg-black/75 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 sm:group-active:opacity-0 active:opacity-100 transition-all duration-150 backdrop-blur-sm"
             >
               <FiExternalLink className="w-2.5 sm:w-3 h-2.5 sm:h-3" />
             </a>
@@ -111,7 +111,7 @@ export default function PlayerCard({
             <button
               onClick={(e) => { e.stopPropagation(); !busy && onToggle(id, false); }}
               aria-label="Remove from session"
-              className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 w-5 sm:w-6 h-5 sm:h-6 flex items-center justify-center rounded-sm bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 transition-all duration-150 backdrop-blur-sm text-xs leading-none"
+              className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 w-5 sm:w-6 h-5 sm:h-6 flex items-center justify-center rounded-sm bg-black/55 text-zinc-300 hover:text-white hover:bg-red-500/70 ring-1 ring-inset ring-white/10 opacity-0 group-hover:opacity-100 sm:group-active:opacity-0 active:opacity-100 transition-all duration-150 backdrop-blur-sm text-xs leading-none"
             >
               ✕
             </button>

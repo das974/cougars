@@ -80,7 +80,7 @@ function DraggablePlayerRow({
         <BsGripVertical className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-zinc-600 flex-shrink-0" />
         <span className="text-[11px] sm:text-xs text-zinc-300 font-medium truncate">{player.name}</span>
       </span>
-      <span className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0">
+      <span className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
         {player.cougar && (
           <span className="inline-flex items-center justify-center w-4 sm:w-5 h-4 sm:h-5 rounded-sm text-[7px] sm:text-[8px] font-bold ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
             <FaPaw className="w-1.5 sm:w-2 h-1.5 sm:h-2" />

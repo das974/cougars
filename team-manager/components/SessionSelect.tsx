@@ -15,9 +15,10 @@ interface Props {
   past: Session[];
   value: string;
   onChange: (id: string) => void;
+  className?: string;
 }
 
-export default function SessionSelect({ upcoming, past, value, onChange }: Props) {
+export default function SessionSelect({ upcoming, past, value, onChange, className }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,8 +57,8 @@ export default function SessionSelect({ upcoming, past, value, onChange }: Props
                   : 'text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100',
               ].join(' ')}
             >
-              <span>{s.date ? formatDate(s.date) : s.id}</span>
-              {isSelected && <FiCheck className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-primary flex-shrink-0" />}
+              <span className="truncate flex-1">{s.date ? formatDate(s.date) : s.id}</span>
+              {isSelected && <FiCheck className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-primary flex-shrink-0 ml-1" />}
             </button>
           );
         })}
@@ -66,11 +67,11 @@ export default function SessionSelect({ upcoming, past, value, onChange }: Props
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className={`relative min-w-0 ${className ?? ''}`}>
       {/* Trigger */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex-1 sm:flex-none flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-2.5 py-1 sm:py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-xs sm:text-sm text-zinc-200 hover:border-zinc-600 hover:bg-zinc-700/60 active:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 min-w-fit sm:min-w-[140px]"
+        className="h-8 w-full flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-xs sm:text-sm text-zinc-200 hover:border-zinc-600 hover:bg-zinc-700/60 active:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 sm:min-w-[140px]"
       >
         <span className="flex-1 text-left truncate">{label}</span>
         <FiChevronDown
@@ -78,10 +79,10 @@ export default function SessionSelect({ upcoming, past, value, onChange }: Props
         />
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown — at least as wide as the trigger on mobile, fixed 208px on desktop */}
       <div
         className={[
-          'absolute left-0 sm:right-0 top-full mt-1.5 z-50 w-full sm:w-52 rounded-xl border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/50 p-1 overflow-hidden',
+          'absolute left-0 top-full mt-1.5 z-50 min-w-full sm:w-52 rounded-xl border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/50 p-1 overflow-hidden',
           'transition-all duration-150 origin-top',
           open ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none',
         ].join(' ')}
