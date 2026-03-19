@@ -32,7 +32,7 @@ export default function SplashLoader({ isExiting = false }: { isExiting?: boolea
 
       {/* Spinner + label — centred independently, spinner offset below centre */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 sm:gap-5">
-        <div style={{ marginTop: '100px' }} className="sm:" style={{ marginTop: '140px' }}>
+        <div className="mt-[100px] sm:mt-[140px]">
           <div className="three-body" role="status" aria-label="Loading">
             <div className="three-body__dot" />
             <div className="three-body__dot" />
