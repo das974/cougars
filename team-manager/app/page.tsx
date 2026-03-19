@@ -454,7 +454,7 @@ function HomeContent() {
                 </button>
               )}
             </div>
-            <div className="player-grid grid grid-cols-3 sm:grid-cols-6 gap-y-3 sm:gap-y-4 [&>*]:-mr-2 sm:[&>*]:-mr-3">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-y-3 sm:gap-y-4 [&>*]:-mr-2 sm:[&>*]:-mr-3">
               <AnimatePresence mode="popLayout">
                 {(players ?? []).filter((p) => !hideUnselected || attendingIds.has(p.id)).map((p, i) => (
                   <motion.div

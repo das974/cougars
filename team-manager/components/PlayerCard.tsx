@@ -28,21 +28,23 @@ export default function PlayerCard({
       onClick={handleClick}
       role="button"
       tabIndex={-1}
-      data-selected={selected ? 'true' : 'false'}
       className="relative select-none w-full aspect-[5/7]"
       style={{
         borderRadius: '3px',
-        border: selected ? '2px solid #5c5c67' : '2px solid #3f3f46',
+        borderTop: selected ? '2px solid #CF375A' : '2px solid #3f3f46',
+        borderRight: '2px solid #3f3f46',
+        borderBottom: '2px solid #3f3f46',
+        borderLeft: '2px solid #3f3f46',
         overflow: 'hidden',
         filter: selected
-          ? 'brightness(1.25)'
+          ? 'brightness(1.4)'
           : 'grayscale(100%) brightness(0.55) contrast(0.9)',
         boxShadow: selected
           ? '0 1px 1px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.35), 0 8px 16px rgba(0,0,0,0.25), -4px 0 8px rgba(0,0,0,0.5)'
           : '-4px 0 8px rgba(0,0,0,0.5)',
         transformStyle: 'preserve-3d' as const,
         transform: selected
-          ? 'rotateY(5deg) scale(1)'
+          ? 'rotateY(3deg) scale(1)'
           : 'rotateY(0deg) scale(0.97)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease',
       }}
