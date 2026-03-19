@@ -60,7 +60,6 @@ function HomeContent() {
   const [generating,        setGenerating]        = useState(false);
   const [genError,          setGenError]          = useState<string | null>(null);
   const [panelOpen,         setPanelOpen]         = useState(false);
-  const [hideUnselected,    setHideUnselected]    = useState(false);
   const [showAllMode,       setShowAllMode]       = useState(false);
   const [isAdmin,           setIsAdmin]           = useState(false);
   const [isAuthenticated,   setIsAuthenticated]   = useState(false);
@@ -176,6 +175,15 @@ function HomeContent() {
   }, [session, today]);
 
   const isReadonly = isPast && !isAdmin;
+
+  const hideUnselected = searchParams.get('selectedOnly') === '1';
+
+  function setHideUnselected(val: boolean | ((prev: boolean) => boolean)) {
+    const next = typeof val === 'function' ? val(hideUnselected) : val;
+    const params = new URLSearchParams(searchParams.toString());
+    if (next) { params.set('selectedOnly', '1'); } else { params.delete('selectedOnly'); }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }
 
   // Update URL to reflect the current session (on auto-selection or manual change)
   useEffect(() => {
@@ -446,9 +454,9 @@ function HomeContent() {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-y-2 sm:gap-y-4">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-y-3 sm:gap-y-4 [&>*]:-mr-3 sm:[&>*]:-mr-4">
               <AnimatePresence mode="popLayout">
-                {(players ?? []).filter((p) => !hideUnselected || attendingIds.has(p.id)).map((p) => (
+                {(players ?? []).filter((p) => !hideUnselected || attendingIds.has(p.id)).map((p, i) => (
                   <motion.div
                     key={p.id}
                     layout
@@ -456,7 +464,7 @@ function HomeContent() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    style={{ width: 'calc(100% + 4px)', position: 'relative' }}
+                    style={{ zIndex: attendingIds.has(p.id) ? 20 : 1 }}
                   >
                     <PlayerCard
                       id={p.id}
@@ -465,8 +473,8 @@ function HomeContent() {
                       cougar={p.cougar}
                       photoUrl={p.photoUrl}
                       rating={p.rating}
+                      showRating={isAdmin}
                       selected={attendingIds.has(p.id)}
-                      isAdmin={isAdmin}
                       onToggle={handleToggle}
                     />
                   </motion.div>
