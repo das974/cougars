@@ -24,8 +24,6 @@ const DEBOUNCE_MS = 600;
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: sessions, error: sessionsError } = useSWR<Session[]>('/api/sessions', fetcher);
-  const { data: players,  error: playersError  } = useSWR<Player[]>('/api/players',  fetcher);
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
@@ -51,6 +49,9 @@ function HomeContent() {
   const [showAllMode,       setShowAllMode]       = useState(false);
   const [isAdmin,           setIsAdmin]           = useState(false);
   const [isAuthenticated,   setIsAuthenticated]   = useState(false);
+  const [authChecked,       setAuthChecked]       = useState(false);
+  const { data: sessions, error: sessionsError } = useSWR<Session[]>(authChecked && isAuthenticated ? '/api/sessions' : null, fetcher);
+  const { data: players,  error: playersError  } = useSWR<Player[]>(authChecked && isAuthenticated ? '/api/players'  : null, fetcher);
   const [splashExiting,     setSplashExiting]     = useState(false);
   const [splashGone,        setSplashGone]        = useState(false);
 
@@ -95,18 +96,24 @@ function HomeContent() {
   useEffect(() => {
     fetch('/api/me').then((r) => r.json()).then(({ isAuthenticated, isAdmin }) => {
       if (isAuthenticated) { setIsAuthenticated(true); setIsAdmin(!!isAdmin); }
+      setAuthChecked(true);
     });
   }, []);
 
-  // Fade out the splash when data is ready
+  // Start exiting the splash when auth is confirmed and either not authenticated, or data is loaded.
   useEffect(() => {
-    if (sessions && players && !splashExiting) {
+    if (authChecked && (!isAuthenticated || (sessions && players))) {
       setSplashExiting(true);
-      const t = setTimeout(() => setSplashGone(true), 500);
-      return () => clearTimeout(t);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessions, players]);
+  }, [authChecked, isAuthenticated, sessions, players]);
+
+  // Once splash starts exiting, schedule its removal after the CSS transition (300ms).
+  // Kept separate so the cleanup here doesn't cancel the timer when splashExiting flips.
+  useEffect(() => {
+    if (!splashExiting) return;
+    const t = setTimeout(() => setSplashGone(true), 300);
+    return () => clearTimeout(t);
+  }, [splashExiting]);
 
   // Flush immediately when the session changes so pending writes aren't lost;
   // also clear any locally-generated teams so we show the session's stored teams.
@@ -255,7 +262,7 @@ function HomeContent() {
       const res = await fetch('/api/solve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players: attending, sessionId: session.id }),
+        body: JSON.stringify({ sessionId: session.id }),
       });
       if (!res.ok) { const e = await res.json(); throw new Error(e.error ?? `HTTP ${res.status}`); }
       const data = await res.json();
@@ -271,21 +278,12 @@ function HomeContent() {
   }
 
   // ── Render ───────────────────────────────────────────────────────────────
-  if (sessionsError || playersError) {
-    return (
-      <div className="min-h-screen bg-base flex items-center justify-center text-red-400 text-sm">
-        Failed to load data — check AIRTABLE_API env var.
-      </div>
-    );
-  }
-  if (!sessions || !players) return <SplashLoader isExiting={false} />;
-
-  const canGenerate = attendingIds.size > 0 && !generating && !isReadonly;
+  const canGenerate = !!(sessions && players && attendingIds.size > 0 && !generating && !isReadonly);
   const showReadyPulse = canGenerate && !(teams ?? airtableTeams);
 
   return (
     <>
-      {/* Background image and vignette — outside opacity wrapper so they are truly viewport-fixed */}
+      {/* Background image */}
       <div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
@@ -296,24 +294,30 @@ function HomeContent() {
         }}
       />
 
+      {/* Splash — visible until auth confirmed + (not authenticated, or data loaded) */}
       {!splashGone && <SplashLoader isExiting={splashExiting} />}
-      
-      {/* AppLogin shown only after splash is gone AND not authenticated */}
+
+      {/* Login — shown once splash exits and user is not authenticated */}
       {splashGone && !isAuthenticated && (
         <AppLogin onAuth={(adminMode) => {
           setIsAuthenticated(true);
           if (adminMode) setIsAdmin(true);
+          // Bring splash back while app data loads
+          setSplashGone(false);
+          setSplashExiting(false);
         }} />
       )}
-      
-      {/* Main app rendered while splash is visible (pointer-events-none), then shown when splashGone */}
-      <div 
-        className="min-h-screen bg-base/0"
-        style={{
-          pointerEvents: splashGone && isAuthenticated ? 'auto' : 'none',
-          visibility: isAuthenticated ? 'visible' : 'hidden',
-        }}
-      >
+
+      {/* Error — only reachable when authenticated and SWR has fired */}
+      {(sessionsError || playersError) && (
+        <div className="min-h-screen bg-base flex items-center justify-center text-red-400 text-sm">
+          Failed to load data — check AIRTABLE_API env var.
+        </div>
+      )}
+
+      {/* Main app — authenticated, splash gone, data loaded */}
+      {splashGone && isAuthenticated && sessions && players && (
+      <div className="min-h-screen bg-base/0">
       {/* Generating overlay */}
       <AnimatePresence>
         {generating && (
@@ -559,6 +563,7 @@ function HomeContent() {
         </div>
       )}
       </div>
+      )}
     </>
   );
 }

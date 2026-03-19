@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { setAttendance } from '@/lib/airtable';
+import { requireAppAuth } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
+  const deny = await requireAppAuth(req);
+  if (deny) return deny;
   try {
     const body = await req.json();
     const { sessionId, attendingIds } = body;

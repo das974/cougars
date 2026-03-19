@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkAppAuth, checkAdminAuth } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
-  const isAuthenticated = req.cookies.get('app_auth')?.value === '1';
-  const isAdmin         = req.cookies.get('admin_auth')?.value === '1';
+  const isAuthenticated = await checkAppAuth(req);
+  const isAdmin         = isAuthenticated && await checkAdminAuth(req);
   return NextResponse.json({ isAuthenticated, isAdmin });
 }

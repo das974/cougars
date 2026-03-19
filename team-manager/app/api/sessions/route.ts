@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { fetchSessions } from '@/lib/airtable';
+import { requireAppAuth } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const deny = await requireAppAuth(req);
+  if (deny) return deny;
   try {
     const sessions = await fetchSessions();
     return NextResponse.json(sessions);
