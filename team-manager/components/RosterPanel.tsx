@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
-import { FaPaw } from 'react-icons/fa';
+import { PlayerBadges } from '@/components/PlayerBadge';
 import { FiExternalLink } from 'react-icons/fi';
 import type { Player } from '@/lib/airtable';
 import { airtablePlayerUrl } from '@/lib/constants';
@@ -122,7 +122,7 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                   className="roster-row w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2.5 rounded-lg text-left"
                 >
                   {/* Photo / initial */}
-                  <div className="relative flex-none w-7 sm:w-9 h-7 sm:h-9 rounded-full overflow-hidden bg-zinc-900 ring-1 ring-inset ring-zinc-700/60">
+                  <div className="relative flex-none w-9 sm:w-9 h-9 sm:h-9 rounded-full overflow-hidden bg-zinc-900 ring-1 ring-inset ring-zinc-700/60">
                     {p.photoUrl ? (
                       <Image
                         src={p.photoUrl}
@@ -133,7 +133,7 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                         unoptimized
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs sm:text-sm font-semibold text-zinc-500">
+                      <div className="w-full h-full flex items-center justify-center text-sm sm:text-sm font-semibold text-zinc-500">
                         {p.name[0]?.toUpperCase()}
                       </div>
                     )}
@@ -141,26 +141,11 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
 
                   {/* Name + badges */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] sm:text-xs font-semibold truncate text-zinc-200">
+                    <p className="text-sm font-semibold truncate text-zinc-200">
                       {p.name}
                     </p>
-                    <div className="flex gap-0.5 sm:gap-1 mt-0.5 h-4 sm:h-[18px] items-center">
-                      <span
-                        className={`inline-flex items-center rounded-md px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[9px] font-semibold ring-1 ring-inset uppercase tracking-wide ${
-                          p.position === 'F'
-                            ? 'bg-green/20 text-green ring-green/30'
-                            : p.position === 'D'
-                            ? 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'
-                            : 'bg-zinc-400/20 text-zinc-400 ring-zinc-400/30'
-                        }`}
-                      >
-                        {p.position || '—'}
-                      </span>
-                      {p.cougar && (
-                        <span className="inline-flex items-center gap-0.5 rounded-md px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[9px] font-semibold uppercase tracking-wide bg-primary/20 text-primary ring-1 ring-inset ring-primary/35">
-                          <FaPaw className="w-1.5 sm:w-2 h-1.5 sm:h-2" />
-                        </span>
-                      )}
+                    <div className="mt-1">
+                      <PlayerBadges position={p.position} cougar={p.cougar} reserveSpace />
                     </div>
                   </div>
 
@@ -171,10 +156,10 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex-none w-5 sm:w-6 h-5 sm:h-6 flex items-center justify-center rounded-md text-zinc-600 hover:text-green hover:bg-zinc-800 transition-colors"
+                      className="flex-none w-5 h-5 flex items-center justify-center rounded-sm text-zinc-600 hover:text-green hover:bg-zinc-800 transition-colors"
                       title="Edit in Airtable"
                     >
-                      <FiExternalLink className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+                      <FiExternalLink className="w-5 h-5" />
                     </a>
                   )}
 

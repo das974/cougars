@@ -51,7 +51,7 @@ export default function SessionSelect({ upcoming, past, value, onChange, classNa
               key={s.id}
               onClick={() => pick(s.id)}
               className={[
-                'w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-colors',
+                'w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-left rounded-lg transition-colors',
                 isSelected
                   ? 'text-zinc-100 bg-zinc-700/60'
                   : 'text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100',
@@ -73,7 +73,7 @@ export default function SessionSelect({ upcoming, past, value, onChange, classNa
         onClick={() => setOpen((v) => !v)}
         className="h-8 w-full flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-xs sm:text-sm text-zinc-200 hover:border-zinc-600 hover:bg-zinc-700/60 active:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 sm:min-w-[140px]"
       >
-        <span className="flex-1 text-left truncate">{label}</span>
+        <span className="flex-1 text-center truncate">{label}</span>
         <FiChevronDown
           className={`w-3 sm:w-4 h-3 sm:h-4 text-zinc-500 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />

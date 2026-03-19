@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import useSWR from 'swr';
 import Image from 'next/image';
 import { FaUserPlus, FaCopy } from 'react-icons/fa';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiZap } from 'react-icons/fi';
 import SplashLoader from '@/components/SplashLoader';
 import AppLogin from '@/components/AppLogin';
 import AdminButton from '@/components/AdminButton';
@@ -262,6 +262,8 @@ function HomeContent() {
     const attending = players.filter((p) => attendingIds.has(p.id));
     if (!attending.length) return;
     setGenerating(true); setGenError(null);
+    // Yield two animation frames so the browser can paint the overlay before the fetch starts
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     try {
       const res = await fetch('/api/solve', {
         method: 'POST',
@@ -327,15 +329,23 @@ function HomeContent() {
         }}
       >
       {/* Generating overlay */}
-      {generating && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm pointer-events-none">
-          <div className="three-body" role="status" aria-label="Generating teams">
-            <div className="three-body__dot" />
-            <div className="three-body__dot" />
-            <div className="three-body__dot" />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {generating && (
+          <motion.div
+            className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/80 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            <div className="three-body" role="status" aria-label="Generating teams">
+              <div className="three-body__dot" />
+              <div className="three-body__dot" />
+              <div className="three-body__dot" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Page header — full-bleed fixed bar */}
       <header className="fixed top-0 inset-x-0 z-30 h-16 sm:h-[96px] border-b border-zinc-700/60 bg-base/95 backdrop-blur-md">
@@ -367,18 +377,18 @@ function HomeContent() {
               <FaUserPlus className="w-3.5 h-3.5" />
             </button>
 
-            {/* Generate — h-8 to match other controls, grows on mobile */}
+            {/* Generate — desktop header only */}
             <button
               onClick={handleGenerate}
               disabled={!canGenerate}
               className={[
-                'h-8 flex flex-1 sm:flex-none items-center justify-center rounded-full px-3 sm:px-5 text-xs sm:text-sm font-semibold transition-colors min-w-fit',
+                'hidden sm:flex h-8 items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors',
                 canGenerate
                   ? `bg-primary text-white hover:bg-primary-dk active:brightness-90${showReadyPulse ? ' btn-ready-pulse' : ''}`
                   : 'bg-zinc-800 text-zinc-600 ring-1 ring-inset ring-white/5 cursor-not-allowed',
               ].join(' ')}
             >
-              {generating ? 'Solving…' : <><span className="hidden sm:inline">Generate Teams</span><span className="sm:hidden">Generate</span></>}
+              {generating ? 'Solving…' : 'Generate Teams'}
             </button>
 
             {/* Admin — stays normal size */}
@@ -518,12 +528,25 @@ function HomeContent() {
             : attendingIds.size > 0 && (
               <div className="mt-16 flex flex-col items-center py-10 text-center">
                 <p className="text-sm font-semibold text-zinc-500 mb-1.5">Teams not generated yet</p>
-                <p className="text-xs text-zinc-600">Use <span className="text-zinc-400 font-medium">Generate Teams</span> in the header when the roster is ready</p>
+                <p className="text-xs text-zinc-600">Use <span className="text-zinc-400 font-medium">Generate Teams</span> when the roster is ready</p>
               </div>
             )
           }
         </div>
       </main>
+
+      {/* Floating Generate button — mobile only */}
+      {canGenerate && (
+        <button
+          onClick={handleGenerate}
+          className={[
+            'fixed bottom-6 right-5 z-30 sm:hidden flex items-center gap-2 h-12 rounded-full px-5 text-sm font-semibold shadow-lg shadow-black/50 transition-colors',
+            `bg-primary text-white active:brightness-90${showReadyPulse ? ' btn-ready-pulse' : ''}`,
+          ].join(' ')}
+        >
+          {generating ? 'Solving…' : <FiZap className="w-5 h-5" />}
+        </button>
+      )}
 
       {panelOpen && (
         <RosterPanel

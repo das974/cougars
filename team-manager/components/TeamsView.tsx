@@ -19,7 +19,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { FaPaw } from 'react-icons/fa';
+import { PlayerBadges } from '@/components/PlayerBadge';
 import { BsGripVertical } from 'react-icons/bs';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import { SolverTeam, SolverPlayer } from '@/lib/solver';
@@ -78,26 +78,10 @@ function DraggablePlayerRow({
     >
       <span className="flex items-center gap-1 sm:gap-2">
         <BsGripVertical className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-zinc-600 flex-shrink-0" />
-        <span className="text-[11px] sm:text-xs text-zinc-300 font-medium truncate">{player.name}</span>
+        <span className="text-sm text-zinc-300 font-medium truncate">{player.name}</span>
       </span>
-      <span className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-        {player.cougar && (
-          <span className="inline-flex items-center justify-center w-4 sm:w-5 h-4 sm:h-5 rounded-sm text-[7px] sm:text-[8px] font-bold ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
-            <FaPaw className="w-1.5 sm:w-2 h-1.5 sm:h-2" />
-          </span>
-        )}
-        {player.position && (
-          <span className={`inline-flex items-center justify-center w-4 sm:w-5 h-4 sm:h-5 rounded-sm text-[7px] sm:text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${
-            player.position === 'F'
-              ? 'bg-green/20 text-green ring-green/30'
-              : 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'
-          }`}>
-            {player.position}
-          </span>
-        )}
-        {isAdmin && player.rating > 0 && (
-          <span className="text-[8px] sm:text-[10px] text-green/70 tabular-nums">{player.rating}</span>
-        )}
+      <span className="flex-shrink-0">
+        <PlayerBadges position={player.position} cougar={player.cougar} rating={player.rating} showRating={isAdmin} reserveSpace />
       </span>
     </div>
   );
