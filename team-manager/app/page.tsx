@@ -21,18 +21,6 @@ import type { SolverTeam } from '@/lib/solver';
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 const DEBOUNCE_MS = 600;
 
-function getCookie(name: string): string | undefined {
-  if (typeof document === 'undefined') return undefined;
-  return document.cookie.split('; ').find((r) => r.startsWith(name + '='))?.split('=')[1];
-}
-function setCookie(name: string, value: string, days = 30) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict`;
-}
-function deleteCookie(name: string) {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict`;
-}
-
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -103,12 +91,11 @@ function HomeContent() {
     debounceTimer.current = setTimeout(flush, DEBOUNCE_MS);
   }
 
-  // Restore auth state from cookies (synchronous)
+  // Restore auth state from /api/me (reads HttpOnly cookies server-side)
   useEffect(() => {
-    if (getCookie('app_auth') === '1') {
-      setIsAuthenticated(true);
-      if (getCookie('admin_auth') === '1') setIsAdmin(true);
-    }
+    fetch('/api/me').then((r) => r.json()).then(({ isAuthenticated, isAdmin }) => {
+      if (isAuthenticated) { setIsAuthenticated(true); setIsAdmin(!!isAdmin); }
+    });
   }, []);
 
   // Fade out the splash when data is ready
@@ -263,7 +250,7 @@ function HomeContent() {
     if (!attending.length) return;
     setGenerating(true); setGenError(null);
     // Yield two animation frames so the browser can paint the overlay before the fetch starts
-    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     try {
       const res = await fetch('/api/solve', {
         method: 'POST',
@@ -315,8 +302,7 @@ function HomeContent() {
       {splashGone && !isAuthenticated && (
         <AppLogin onAuth={(adminMode) => {
           setIsAuthenticated(true);
-          setCookie('app_auth', '1');
-          if (adminMode) { setIsAdmin(true); setCookie('admin_auth', '1'); }
+          if (adminMode) setIsAdmin(true);
         }} />
       )}
       
@@ -394,8 +380,7 @@ function HomeContent() {
             {/* Admin — stays normal size */}
             <AdminButton isAdmin={isAdmin} onAdminChange={(v) => {
               setIsAdmin(v);
-              if (v) setCookie('admin_auth', '1');
-              else deleteCookie('admin_auth');
+              if (!v) fetch('/api/admin-auth', { method: 'DELETE' });
             }} />
           </div>
         </div>

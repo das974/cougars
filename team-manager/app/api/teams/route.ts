@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchTeams, deleteTeams, updateTeamPlayers } from '@/lib/airtable';
 
+function stripRatings(teams: Awaited<ReturnType<typeof fetchTeams>>) {
+  return teams.map((t) => ({
+    ...t,
+    players: t.players.map(({ rating: _r, ...p }) => p),
+  }));
+}
+
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get('sessionId');
   if (!sessionId) {
     return NextResponse.json({ error: 'sessionId is required' }, { status: 400 });
   }
   try {
+    const isAdmin = req.cookies.get('admin_auth')?.value === '1';
     const teams = await fetchTeams(sessionId);
-    return NextResponse.json({ teams });
+    return NextResponse.json({ teams: isAdmin ? teams : stripRatings(teams) });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Failed to fetch teams';
     return NextResponse.json({ error: message }, { status: 500 });
