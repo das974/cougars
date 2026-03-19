@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import useSWR from 'swr';
 import Image from 'next/image';
 import { FaUserPlus, FaCopy } from 'react-icons/fa';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import SplashLoader from '@/components/SplashLoader';
 import AppLogin from '@/components/AppLogin';
 import AdminButton from '@/components/AdminButton';
@@ -59,6 +60,8 @@ function HomeContent() {
   const [generating,        setGenerating]        = useState(false);
   const [genError,          setGenError]          = useState<string | null>(null);
   const [panelOpen,         setPanelOpen]         = useState(false);
+  const [hideUnselected,    setHideUnselected]    = useState(false);
+  const [showAllMode,       setShowAllMode]       = useState(false);
   const [isAdmin,           setIsAdmin]           = useState(false);
   const [isAuthenticated,   setIsAuthenticated]   = useState(false);
   const [splashExiting,     setSplashExiting]     = useState(false);
@@ -167,13 +170,6 @@ function HomeContent() {
     return localAttending[session.id] ?? new Set(session.attendingIds);
   }, [session, localAttending]);
 
-  const attendingPlayers = useMemo(() => {
-    if (!players) return [];
-    return players
-      .filter((p) => attendingIds.has(p.id))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [players, attendingIds]);
-
   const isPast = useMemo(() => {
     if (!session?.date) return false;
     return new Date(session.date) < today;
@@ -211,12 +207,6 @@ function HomeContent() {
       };
     });
   }, [storedTeamsData, players]);
-
-  const groupedAttending = useMemo(() => ({
-    forwards: attendingPlayers.filter((p) => p.position === 'F'),
-    defence:  attendingPlayers.filter((p) => p.position === 'D'),
-    other:    attendingPlayers.filter((p) => p.position !== 'F' && p.position !== 'D'),
-  }), [attendingPlayers]);
 
   function copyFromPrevious() {
     if (!session || !previousSession) return;
@@ -396,27 +386,10 @@ function HomeContent() {
       {/* Main content — padded to clear fixed header */}
       <main className="mx-auto max-w-5xl px-4 sm:px-8 pt-20 sm:pt-32 pb-8 relative z-10">
 
-        {/* Player groups */}
-        {attendingPlayers.length === 0 ? (
+        {attendingIds.size === 0 && !showAllMode ? (
           <div className="flex items-start justify-center py-20 text-center gap-12">
-            {/* Add players */}
-            <div
-              className="flex flex-col items-center cursor-pointer group"
-              onClick={() => setPanelOpen(true)}
-            >
-              <div className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center mb-3 transition-colors">
-                <FaUserPlus className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
-              </div>
-              <p className="text-sm font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">No players yet</p>
-              <p className="text-xs text-zinc-600 group-hover:text-zinc-500 mt-1 transition-colors">Click to add players</p>
-            </div>
-
-            {/* Copy from previous session */}
             {previousSession && !isReadonly && (
-              <div
-                className="flex flex-col items-center cursor-pointer group"
-                onClick={copyFromPrevious}
-              >
+              <div className="flex flex-col items-center cursor-pointer group" onClick={copyFromPrevious}>
                 <div className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center mb-3 transition-colors">
                   <FaCopy className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
                 </div>
@@ -428,74 +401,78 @@ function HomeContent() {
                 </p>
               </div>
             )}
+            <div className="flex flex-col items-center cursor-pointer group" onClick={() => { setShowAllMode(true); setHideUnselected(false); }}>
+              <div className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center mb-3 transition-colors">
+                <FiEye className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+              </div>
+              <p className="text-sm font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">Show All Available</p>
+              <p className="text-xs text-zinc-600 group-hover:text-zinc-500 mt-1 transition-colors">Pick who&apos;s attending</p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-8">
-            {([['Forwards', groupedAttending.forwards], ['Defence', groupedAttending.defence], ['Other', groupedAttending.other]] as [string, typeof attendingPlayers][]).map(([label, group]) =>
-              group.length === 0 ? null : (
-                <div key={label}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className={`text-xs font-semibold uppercase tracking-widest whitespace-nowrap ${
-                      label === 'Forwards' ? 'text-green' : 'text-zinc-300'
-                    }`}>
-                      {group.length} {label}
-                    </span>
-                    <div className="flex-1 h-px bg-zinc-700/50" />
-                    {label === 'Forwards' && attendingIds.size > 0 && (
-                      <button
-                        onClick={() => {
-                          if (!session) return;
-                          setTeams(null);
-                          mutateStoredTeams({ teams: [] }, false);
-                          fetch(`/api/teams?sessionId=${session.id}`, { method: 'DELETE' }).catch(() => {});
-                          const empty = new Set<string>();
-                          setLocalAttending((prev) => ({ ...prev, [session.id]: empty }));
-                          scheduleFlush(session.id, empty);
-                        }}
-                        className="text-xs text-zinc-600 hover:text-zinc-300 rounded-full px-2 py-0.5 hover:bg-zinc-800/60 ring-1 ring-inset ring-transparent hover:ring-white/10 transition-all"
-                      >
-                        Clear all
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-4">
-                    <AnimatePresence mode="popLayout">
-                      {group.map((p) => (
-                        <motion.div
-                          key={p.id}
-                          layout
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                        >
-                          <PlayerCard
-                            id={p.id}
-                            name={p.name}
-                            position={p.position}
-                            cougar={p.cougar}
-                            photoUrl={p.photoUrl}
-                            rating={p.rating}
-                            attending={true}
-                            busy={false}
-                            isAdmin={isAdmin}
-                            onToggle={handleToggle}
-                          />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              )
-            )}
-          </div>
-        )}
-
-        {attendingPlayers.length > 0 && (
-          <div className="mt-8 flex items-center gap-3">
-            <span className="text-xl font-bold text-primary whitespace-nowrap">{attendingIds.size} Total</span>
-            <div className="flex-1 h-px bg-zinc-700/50" />
-            {isSaving && <span className="text-zinc-500 animate-pulse text-xs">Saving…</span>}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400 whitespace-nowrap">
+                {attendingIds.size}/{players?.length ?? 0} Players
+              </span>
+              <div className="flex-1 h-px bg-zinc-700/50" />
+              <button
+                onClick={() => setHideUnselected((v) => !v)}
+                title={hideUnselected ? 'Show all players' : 'Selected only'}
+                className={`flex items-center gap-1 text-xs rounded-full px-2 py-0.5 ring-1 ring-inset transition-all ${
+                  hideUnselected
+                    ? 'bg-zinc-700/60 text-zinc-300 ring-white/10'
+                    : 'text-zinc-600 hover:text-zinc-300 ring-transparent hover:bg-zinc-800/60 hover:ring-white/10'
+                }`}
+              >
+                {hideUnselected ? <FiEyeOff className="w-3 h-3" /> : <FiEye className="w-3 h-3" />}
+                <span className="hidden sm:inline">{hideUnselected ? 'Show all' : 'Selected only'}</span>
+              </button>
+              {!isReadonly && attendingIds.size > 0 && (
+                <button
+                  onClick={() => {
+                    if (!session) return;
+                    setTeams(null);
+                    mutateStoredTeams({ teams: [] }, false);
+                    fetch(`/api/teams?sessionId=${session.id}`, { method: 'DELETE' }).catch(() => {});
+                    const empty = new Set<string>();
+                    setLocalAttending((prev) => ({ ...prev, [session.id]: empty }));
+                    scheduleFlush(session.id, empty);
+                    setShowAllMode(false);
+                  }}
+                  className="text-xs text-zinc-600 hover:text-zinc-300 rounded-full px-2 py-0.5 hover:bg-zinc-800/60 ring-1 ring-inset ring-transparent hover:ring-white/10 transition-all"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-y-2 sm:gap-y-4">
+              <AnimatePresence mode="popLayout">
+                {(players ?? []).filter((p) => !hideUnselected || attendingIds.has(p.id)).map((p) => (
+                  <motion.div
+                    key={p.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    style={{ width: 'calc(100% + 4px)', position: 'relative' }}
+                  >
+                    <PlayerCard
+                      id={p.id}
+                      name={p.name}
+                      position={p.position}
+                      cougar={p.cougar}
+                      photoUrl={p.photoUrl}
+                      rating={p.rating}
+                      selected={attendingIds.has(p.id)}
+                      isAdmin={isAdmin}
+                      onToggle={handleToggle}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         )}
 
@@ -520,7 +497,7 @@ function HomeContent() {
                   }).catch(() => {});
                 }}
               />
-            : attendingPlayers.length > 0 && (
+            : attendingIds.size > 0 && (
               <div className="mt-16 flex flex-col items-center py-10 text-center">
                 <p className="text-sm font-semibold text-zinc-500 mb-1.5">Teams not generated yet</p>
                 <p className="text-xs text-zinc-600">Use <span className="text-zinc-400 font-medium">Generate Teams</span> in the header when the roster is ready</p>
