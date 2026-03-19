@@ -39,6 +39,24 @@ body {
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
 }
 
+/* ── Player card grid: flatten the last card in each row ──────────── */
+/* Mobile (3 cols) — every 3rd card */
+.player-grid > *:nth-child(3n) [data-selected='true'] {
+  transform: rotateY(0deg) scale(1) !important;
+}
+/* Desktop (6 cols, sm breakpoint = 640px) */
+@media (min-width: 640px) {
+  /* Restore tilt for the 3rd card (not last on desktop) */
+  .player-grid > *:nth-child(3n) [data-selected='true'] {
+    transform: rotateY(5deg) scale(1) !important;
+  }
+  /* Flatten the 6th card and the very last card in the grid */
+  .player-grid > *:nth-child(6n) [data-selected='true'],
+  .player-grid > *:last-child [data-selected='true'] {
+    transform: rotateY(0deg) scale(1) !important;
+  }
+}
+
 /* ── Three-body loader (uiverse.io/dovatgabriel/tidy-walrus-92, MIT) ─ */
 .three-body {
   --uib-size: 50px;

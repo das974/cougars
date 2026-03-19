@@ -454,7 +454,7 @@ function HomeContent() {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-y-3 sm:gap-y-4 [&>*]:-mr-3 sm:[&>*]:-mr-4">
+            <div className="player-grid grid grid-cols-3 sm:grid-cols-6 gap-y-3 sm:gap-y-4 [&>*]:-mr-2 sm:[&>*]:-mr-3">
               <AnimatePresence mode="popLayout">
                 {(players ?? []).filter((p) => !hideUnselected || attendingIds.has(p.id)).map((p, i) => (
                   <motion.div
@@ -464,7 +464,7 @@ function HomeContent() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    style={{ zIndex: attendingIds.has(p.id) ? 20 : 1 }}
+                    style={{ zIndex: i, perspective: '600px' }}
                   >
                     <PlayerCard
                       id={p.id}

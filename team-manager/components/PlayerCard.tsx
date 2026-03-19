@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { FaPaw } from 'react-icons/fa';
+import { FiCheck } from 'react-icons/fi';
 
 export interface PlayerCardProps {
   id: string;
@@ -27,19 +28,22 @@ export default function PlayerCard({
       onClick={handleClick}
       role="button"
       tabIndex={-1}
+      data-selected={selected ? 'true' : 'false'}
       className="relative select-none w-full aspect-[5/7]"
       style={{
         borderRadius: '3px',
-        border: selected ? '2px solid #52525b' : '2px solid #3f3f46',
+        border: selected ? '2px solid #5c5c67' : '2px solid #3f3f46',
         overflow: 'hidden',
-        zIndex: selected ? 10 : 1,
         filter: selected
-          ? 'brightness(1.0)'
-          : photoUrl ? 'grayscale(60%) brightness(0.35)' : 'grayscale(30%) brightness(0.4)',
+          ? 'brightness(1.25)'
+          : 'grayscale(100%) brightness(0.55) contrast(0.9)',
         boxShadow: selected
           ? '0 1px 1px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.35), 0 8px 16px rgba(0,0,0,0.25), -4px 0 8px rgba(0,0,0,0.5)'
           : '-4px 0 8px rgba(0,0,0,0.5)',
-        transform: selected ? 'scale(1)' : 'scale(0.97)',
+        transformStyle: 'preserve-3d' as const,
+        transform: selected
+          ? 'rotateY(5deg) scale(1)'
+          : 'rotateY(0deg) scale(0.97)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease',
       }}
     >
@@ -50,7 +54,7 @@ export default function PlayerCard({
             {photoUrl ? (
               <Image src={photoUrl} alt={name} fill sizes="(max-width: 640px) 34vw, 17vw" className="object-cover object-top" unoptimized />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at 60% 40%, #2a1a20 0%, #17171C 60%, #0D0D10 100%)' }}>
                 <span className="text-2xl sm:text-5xl font-bold select-none text-white">{name[0]?.toUpperCase()}</span>
               </div>
             )}
@@ -61,8 +65,13 @@ export default function PlayerCard({
               style={{ background: 'linear-gradient(to top, rgba(10,10,14,1) 0%, rgba(10,10,14,0.3) 28%, transparent 55%)' }}
             />
 
-            {/* Top-left badges: rating (admin) + cougar paw */}
+            {/* Top-left badges: check + rating (admin) + cougar paw */}
             <div className="absolute top-1 sm:top-1.5 left-1 sm:left-1.5 flex gap-0.5 sm:gap-1">
+              {selected && (
+                <span className="text-green-400 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] flex items-center">
+                  <FiCheck className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5" strokeWidth={3} />
+                </span>
+              )}
               {showRating && rating != null && rating > 0 && (
                 <span className="inline-flex items-center justify-center w-3 sm:w-5 h-3 sm:h-5 rounded-sm text-[6px] sm:text-[8px] font-bold ring-1 ring-inset bg-black/60 text-green ring-green/40 backdrop-blur-sm tabular-nums">
                   {rating}
@@ -74,7 +83,6 @@ export default function PlayerCard({
                 </span>
               )}
             </div>
-
 
           </div>
 
