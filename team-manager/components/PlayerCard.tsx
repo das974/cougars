@@ -38,7 +38,7 @@ export default function PlayerCard({
       onMouseLeave={() => setSpot(null)}
       role="button"
       tabIndex={-1}
-      className="relative select-none group active:opacity-90 sm:w-36 sm:h-52 w-20 h-28"
+      className="relative select-none group active:opacity-70 sm:active:opacity-90 w-full sm:w-36 sm:h-52 aspect-[5/7] sm:aspect-auto sm:h-52"
       style={{
         border: '2px solid rgba(255,255,255,0.10)',
         borderRadius: '2px',

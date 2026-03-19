@@ -304,10 +304,10 @@ export default function TeamsView({
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
-        <div className={`grid gap-4 ${
-          teams.length === 2 ? 'grid-cols-2' :
-          teams.length === 3 ? 'grid-cols-3' :
-          'grid-cols-2'
+        <div className={`grid gap-2 sm:gap-4 ${
+          teams.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+          teams.length === 3 ? 'grid-cols-1 sm:grid-cols-3' :
+          'grid-cols-1 sm:grid-cols-2'
         }`}>
           {teams.map((team) => (
             <TeamCard

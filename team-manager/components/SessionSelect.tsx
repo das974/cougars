@@ -70,7 +70,7 @@ export default function SessionSelect({ upcoming, past, value, onChange }: Props
       {/* Trigger */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-2.5 py-1 sm:py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-xs sm:text-sm text-zinc-200 hover:border-zinc-600 hover:bg-zinc-700/60 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 min-w-fit sm:min-w-[140px]"
+        className="flex-1 sm:flex-none flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-2.5 py-1 sm:py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-xs sm:text-sm text-zinc-200 hover:border-zinc-600 hover:bg-zinc-700/60 active:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 min-w-fit sm:min-w-[140px]"
       >
         <span className="flex-1 text-left truncate">{label}</span>
         <FiChevronDown
