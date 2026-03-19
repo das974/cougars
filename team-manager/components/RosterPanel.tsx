@@ -52,15 +52,15 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
 
       {/* Slide-in panel from left */}
       <div
-        className="fixed left-0 top-0 h-full w-[420px] bg-zinc-900 shadow-2xl shadow-black/60 z-50 flex flex-col transition-transform duration-300 ease-out border-r border-zinc-700/60"
+        className="fixed left-0 top-0 h-full w-full sm:w-[420px] bg-zinc-900 shadow-2xl shadow-black/60 z-50 flex flex-col transition-transform duration-300 ease-out border-r border-zinc-700/60"
         style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700/60">
+        <div className="flex items-center justify-between px-3 sm:px-5 py-3 sm:py-4 border-b border-zinc-700/60">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-100">Full Roster</h2>
+            <h2 className="text-xs sm:text-sm font-semibold text-zinc-100">Full Roster</h2>
             <div className="flex items-center gap-2 mt-1">
-              <p className="text-xs text-zinc-500">
+              <p className="text-[10px] sm:text-xs text-zinc-500">
                 {attendingIds.size} attending · {players.length} total
               </p>
               <div className="flex gap-1">
@@ -97,19 +97,19 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
         </div>
 
         {/* Search */}
-        <div className="px-4 pt-3 pb-2">
+        <div className="px-3 sm:px-4 pt-2 sm:pt-3 pb-1.5 sm:pb-2">
           <input
             type="search"
             placeholder="Search players…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             autoFocus
-            className="w-full px-3 py-2 rounded-md border border-zinc-700 bg-zinc-800 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-green/40"
+            className="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-zinc-700 bg-zinc-800 text-xs sm:text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-green/40"
           />
         </div>
 
         {/* Player list */}
-        <div className="flex-1 overflow-y-auto px-2 pb-4 panel-scroll">
+        <div className="flex-1 overflow-y-auto px-1.5 sm:px-2 pb-3 sm:pb-4 panel-scroll">
           {sorted.length === 0 ? (
             <p className="text-center text-xs text-zinc-500 pt-8">No players match &quot;{search}&quot;</p>
           ) : (
@@ -119,21 +119,21 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                 <button
                   key={p.id}
                   onClick={() => onToggle(p.id, !attending)}
-                  className="roster-row w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left"
+                  className="roster-row w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2.5 rounded-lg text-left"
                 >
                   {/* Photo / initial */}
-                  <div className="relative flex-none w-9 h-9 rounded-full overflow-hidden bg-zinc-900 ring-1 ring-inset ring-zinc-700/60">
+                  <div className="relative flex-none w-7 sm:w-9 h-7 sm:h-9 rounded-full overflow-hidden bg-zinc-900 ring-1 ring-inset ring-zinc-700/60">
                     {p.photoUrl ? (
                       <Image
                         src={p.photoUrl}
                         alt={p.name}
                         fill
-                        sizes="36px"
+                        sizes="(max-width: 640px) 28px, 36px"
                         className="object-cover"
                         unoptimized
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-zinc-500">
+                      <div className="w-full h-full flex items-center justify-center text-xs sm:text-sm font-semibold text-zinc-500">
                         {p.name[0]?.toUpperCase()}
                       </div>
                     )}
@@ -141,12 +141,12 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
 
                   {/* Name + badges */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate text-zinc-200">
+                    <p className="text-[10px] sm:text-xs font-semibold truncate text-zinc-200">
                       {p.name}
                     </p>
-                    <div className="flex gap-1 mt-0.5 h-[18px] items-center">
+                    <div className="flex gap-0.5 sm:gap-1 mt-0.5 h-4 sm:h-[18px] items-center">
                       <span
-                        className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-semibold ring-1 ring-inset uppercase tracking-wide ${
+                        className={`inline-flex items-center rounded-md px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[9px] font-semibold ring-1 ring-inset uppercase tracking-wide ${
                           p.position === 'F'
                             ? 'bg-green/20 text-green ring-green/30'
                             : p.position === 'D'
@@ -157,8 +157,8 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                         {p.position || '—'}
                       </span>
                       {p.cougar && (
-                        <span className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide bg-primary/20 text-primary ring-1 ring-inset ring-primary/35">
-                          <FaPaw className="w-2 h-2" />
+                        <span className="inline-flex items-center gap-0.5 rounded-md px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[9px] font-semibold uppercase tracking-wide bg-primary/20 text-primary ring-1 ring-inset ring-primary/35">
+                          <FaPaw className="w-1.5 sm:w-2 h-1.5 sm:h-2" />
                         </span>
                       )}
                     </div>
@@ -171,10 +171,10 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex-none w-6 h-6 flex items-center justify-center rounded-md text-zinc-600 hover:text-green hover:bg-zinc-800 transition-colors"
+                      className="flex-none w-5 sm:w-6 h-5 sm:h-6 flex items-center justify-center rounded-md text-zinc-600 hover:text-green hover:bg-zinc-800 transition-colors"
                       title="Edit in Airtable"
                     >
-                      <FiExternalLink className="w-3.5 h-3.5" />
+                      <FiExternalLink className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                     </a>
                   )}
 
@@ -182,7 +182,7 @@ export default function RosterPanel({ players, attendingIds, onToggle, onClose, 
                   {showAll && (
                     <div
                       className={[
-                        'flex-none w-5 h-5 rounded-full flex items-center justify-center text-[10px] transition-colors',
+                        'flex-none w-4 sm:w-5 h-4 sm:h-5 rounded-full flex items-center justify-center text-[8px] sm:text-[10px] transition-colors',
                         attending
                           ? 'bg-green/25 text-green/80 ring-1 ring-inset ring-green/30'
                           : 'border border-zinc-700',

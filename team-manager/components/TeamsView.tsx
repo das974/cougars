@@ -70,24 +70,24 @@ function DraggablePlayerRow({
   const inner = (
     <div
       className={[
-        'flex items-center justify-between px-4 py-2 rounded select-none',
+        'flex items-center justify-between px-2 sm:px-4 py-1.5 sm:py-2 rounded select-none',
         isDragOverlay
           ? 'bg-zinc-700/80 shadow-lg ring-1 ring-white/10'
           : 'hover:bg-zinc-700/30 cursor-grab active:cursor-grabbing',
       ].join(' ')}
     >
-      <span className="flex items-center gap-2">
-        <BsGripVertical className="w-3.5 h-3.5 text-zinc-600 flex-shrink-0" />
-        <span className="text-xs text-zinc-300 font-medium">{player.name}</span>
+      <span className="flex items-center gap-1 sm:gap-2">
+        <BsGripVertical className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-zinc-600 flex-shrink-0" />
+        <span className="text-[11px] sm:text-xs text-zinc-300 font-medium truncate">{player.name}</span>
       </span>
-      <span className="flex items-center gap-1.5">
+      <span className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0">
         {player.cougar && (
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
-            <FaPaw className="w-2 h-2" />
+          <span className="inline-flex items-center justify-center w-4 sm:w-5 h-4 sm:h-5 rounded-sm text-[7px] sm:text-[8px] font-bold ring-1 ring-inset bg-primary/20 text-primary ring-primary/35">
+            <FaPaw className="w-1.5 sm:w-2 h-1.5 sm:h-2" />
           </span>
         )}
         {player.position && (
-          <span className={`inline-flex items-center justify-center w-5 h-5 rounded-sm text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${
+          <span className={`inline-flex items-center justify-center w-4 sm:w-5 h-4 sm:h-5 rounded-sm text-[7px] sm:text-[8px] font-bold ring-1 ring-inset uppercase tracking-wide ${
             player.position === 'F'
               ? 'bg-green/20 text-green ring-green/30'
               : 'bg-zinc-400/20 text-zinc-300 ring-zinc-400/30'
@@ -96,7 +96,7 @@ function DraggablePlayerRow({
           </span>
         )}
         {isAdmin && player.rating > 0 && (
-          <span className="text-[10px] text-green/70 tabular-nums">{player.rating}</span>
+          <span className="text-[8px] sm:text-[10px] text-green/70 tabular-nums">{player.rating}</span>
         )}
       </span>
     </div>
@@ -140,9 +140,9 @@ function TeamCard({
         isOver ? 'border-green/40 bg-zinc-800/80' : 'border-zinc-700/60',
       ].join(' ')}
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-700/60">
-        <span className={`text-sm font-semibold ${cfg.header}`}>{team.name}</span>
-        <span className="ml-auto text-xs text-zinc-500">{team.players.length} players</span>
+      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-zinc-700/60">
+        <span className={`text-xs sm:text-sm font-semibold ${cfg.header}`}>{team.name}</span>
+        <span className="ml-auto text-[10px] sm:text-xs text-zinc-500">{team.players.length}</span>
       </div>
 
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
@@ -160,9 +160,9 @@ function TeamCard({
       </SortableContext>
 
       {isAdmin && (
-        <div className="px-4 py-2 bg-zinc-900/40 border-t border-zinc-700/40 flex items-center justify-between mt-auto">
-          <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Rating</span>
-          <span className="text-xs font-semibold text-zinc-300">
+        <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-zinc-900/40 border-t border-zinc-700/40 flex items-center justify-between mt-auto">
+          <span className="text-[8px] sm:text-[10px] text-zinc-500 uppercase tracking-wide">Rating</span>
+          <span className="text-xs sm:text-xs font-semibold text-zinc-300">
             {team.players.reduce((s, p) => s + p.rating, 0)}
           </span>
         </div>

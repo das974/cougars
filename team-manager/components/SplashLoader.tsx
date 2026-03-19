@@ -25,21 +25,21 @@ export default function SplashLoader({ isExiting = false }: { isExiting?: boolea
           alt=""
           width={120}
           height={120}
-          className="opacity-30 drop-shadow-[0_0_48px_rgba(207,55,90,0.5)]"
+          className="opacity-30 drop-shadow-[0_0_48px_rgba(207,55,90,0.5)] w-16 sm:w-[120px] h-16 sm:h-[120px]"
           priority
         />
       </div>
 
       {/* Spinner + label — centred independently, spinner offset below centre */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-5">
-        <div style={{ marginTop: '140px' }}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 sm:gap-5">
+        <div style={{ marginTop: '100px' }} className="sm:" style={{ marginTop: '140px' }}>
           <div className="three-body" role="status" aria-label="Loading">
             <div className="three-body__dot" />
             <div className="three-body__dot" />
             <div className="three-body__dot" />
           </div>
         </div>
-        <p className="text-[10px] font-semibold text-zinc-600 tracking-[0.35em] uppercase">
+        <p className="text-[8px] sm:text-[10px] font-semibold text-zinc-600 tracking-[0.35em] uppercase">
           Cougars Hockey
         </p>
       </div>
