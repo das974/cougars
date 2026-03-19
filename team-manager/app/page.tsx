@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -31,7 +32,7 @@ function deleteCookie(name: string) {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict`;
 }
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: sessions, error: sessionsError } = useSWR<Session[]>('/api/sessions', fetcher);
@@ -560,5 +561,13 @@ export default function Home() {
       )}
       </div>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<SplashLoader isExiting={false} />}>
+      <HomeContent />
+    </Suspense>
   );
 }
