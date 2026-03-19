@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { FaPaw } from 'react-icons/fa';
-import { FiCheck } from 'react-icons/fi';
 
 export interface PlayerCardProps {
   id: string;
@@ -37,8 +36,8 @@ export default function PlayerCard({
         borderLeft: '2px solid #3f3f46',
         overflow: 'hidden',
         filter: selected
-          ? 'brightness(1.4)'
-          : 'grayscale(100%) brightness(0.55) contrast(0.9)',
+          ? 'brightness(1.6) contrast(1.05)'
+          : 'grayscale(100%) brightness(0.55) contrast(0.85)',
         boxShadow: selected
           ? '0 1px 1px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.35), 0 8px 16px rgba(0,0,0,0.25), -4px 0 8px rgba(0,0,0,0.5)'
           : '-4px 0 8px rgba(0,0,0,0.5)',
@@ -67,13 +66,8 @@ export default function PlayerCard({
               style={{ background: 'linear-gradient(to top, rgba(10,10,14,1) 0%, rgba(10,10,14,0.3) 28%, transparent 55%)' }}
             />
 
-            {/* Top-left badges: check + rating (admin) + cougar paw */}
+            {/* Top-left badges: rating (admin) + cougar paw */}
             <div className="absolute top-1 sm:top-1.5 left-1 sm:left-1.5 flex gap-0.5 sm:gap-1">
-              {selected && (
-                <span className="text-green-400 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] flex items-center">
-                  <FiCheck className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5" strokeWidth={3} />
-                </span>
-              )}
               {showRating && rating != null && rating > 0 && (
                 <span className="inline-flex items-center justify-center w-3 sm:w-5 h-3 sm:h-5 rounded-sm text-[6px] sm:text-[8px] font-bold ring-1 ring-inset bg-black/60 text-green ring-green/40 backdrop-blur-sm tabular-nums">
                   {rating}
@@ -84,6 +78,9 @@ export default function PlayerCard({
                   <FaPaw className="w-1.5 sm:w-2 h-1.5 sm:h-2" />
                 </span>
               )}
+              <span title={position === 'F' ? 'Forward' : 'Defender'} className="inline-flex items-center justify-center w-3 sm:w-5 h-3 sm:h-5 rounded-sm text-[6px] sm:text-[8px] font-bold ring-1 ring-inset bg-black/60 text-mid ring-white/20 backdrop-blur-sm">
+                {position}
+              </span>
             </div>
 
           </div>

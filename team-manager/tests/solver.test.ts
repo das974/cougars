@@ -176,3 +176,91 @@ describe('Full session (18 players)', () => {
     expect(cougarCount).toBeGreaterThanOrEqual(maxOther);
   });
 });
+
+// ── Tests: March 20 session (21 players → 3 teams of 7) ──────────────────────
+
+/**
+ * Real session from 2026-03-20, anonymised.
+ * 21 players: 14 forwards, 7 defenders, 8 cougars.
+ * Expected: 3 teams of 7; each team has ≥1 F and ≥1 D.
+ */
+const MAR_20_SESSION_PLAYERS = [
+  { id: 'pid-001', name: 'Player 1',  position: 'F', rating: 80, cougar: false },
+  { id: 'pid-002', name: 'Player 2',  position: 'F', rating: 50, cougar: false },
+  { id: 'pid-003', name: 'Player 3',  position: 'D', rating: 75, cougar: false },
+  { id: 'pid-004', name: 'Player 4',  position: 'F', rating: 75, cougar: false },
+  { id: 'pid-005', name: 'Player 5',  position: 'D', rating: 65, cougar: true  },
+  { id: 'pid-006', name: 'Player 6',  position: 'D', rating: 70, cougar: false },
+  { id: 'pid-007', name: 'Player 7',  position: 'F', rating: 90, cougar: false },
+  { id: 'pid-008', name: 'Player 8',  position: 'D', rating: 40, cougar: true  },
+  { id: 'pid-009', name: 'Player 9',  position: 'F', rating: 20, cougar: false },
+  { id: 'pid-010', name: 'Player 10', position: 'F', rating: 70, cougar: true  },
+  { id: 'pid-011', name: 'Player 11', position: 'D', rating: 75, cougar: false },
+  { id: 'pid-012', name: 'Player 12', position: 'D', rating: 70, cougar: false },
+  { id: 'pid-013', name: 'Player 13', position: 'D', rating: 80, cougar: false },
+  { id: 'pid-014', name: 'Player 14', position: 'F', rating: 70, cougar: true  },
+  { id: 'pid-015', name: 'Player 15', position: 'F', rating: 70, cougar: true  },
+  { id: 'pid-016', name: 'Player 16', position: 'F', rating: 70, cougar: false },
+  { id: 'pid-017', name: 'Player 17', position: 'F', rating: 65, cougar: true  },
+  { id: 'pid-018', name: 'Player 18', position: 'F', rating: 40, cougar: true  },
+  { id: 'pid-019', name: 'Player 19', position: 'F', rating: 50, cougar: true  },
+  { id: 'pid-020', name: 'Player 20', position: 'F', rating: 20, cougar: false },
+  { id: 'pid-021', name: 'Player 21', position: 'F', rating: 70, cougar: false },
+];
+
+describe('March 20 session (21 players)', () => {
+  let result: SolverPlayer[];
+
+  beforeAll(() => {
+    result = runSolver(MAR_20_SESSION_PLAYERS);
+  });
+
+  it('assigns all 21 players', () => {
+    expect(result).toHaveLength(21);
+  });
+
+  it('assigns each player exactly once', () => {
+    const ids = result.map((p) => p.id);
+    expect(new Set(ids).size).toBe(21);
+  });
+
+  it('produces exactly 3 teams', () => {
+    const teams = new Set(result.map((p) => p.team));
+    expect(teams.size).toBe(3);
+  });
+
+  it('each team has exactly 7 players', () => {
+    const teams = teamMap(result);
+    for (const [name, players] of Object.entries(teams)) {
+      expect(players.length, `Team ${name} should have 7 players`).toBe(7);
+    }
+  });
+
+  it('defenders are spread evenly (no team has more than ceil(7/3) = 3)', () => {
+    const teams = teamMap(result);
+    for (const [name, players] of Object.entries(teams)) {
+      const defCount = players.filter((p) => p.position === 'D').length;
+      expect(defCount, `Team ${name} has too many defenders (${defCount})`).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it('each team has at least 1 forward and 1 defender', () => {
+    const teams = teamMap(result);
+    for (const [name, players] of Object.entries(teams)) {
+      expect(players.some((p) => p.position === 'F'), `${name} has no forward`).toBe(true);
+      expect(players.some((p) => p.position === 'D'), `${name} has no defender`).toBe(true);
+    }
+  });
+
+  it('Cougars team concentrates the cougar players', () => {
+    const teams = teamMap(result);
+    const cougarTeam = teams['Cougars'] ?? [];
+    const otherTeams = Object.entries(teams)
+      .filter(([name]) => name !== 'Cougars')
+      .map(([, players]) => players);
+
+    const cougarCount = cougarTeam.filter((p) => p.cougar).length;
+    const maxOther = Math.max(...otherTeams.map((t) => t.filter((p) => p.cougar).length));
+    expect(cougarCount).toBeGreaterThanOrEqual(maxOther);
+  });
+});
